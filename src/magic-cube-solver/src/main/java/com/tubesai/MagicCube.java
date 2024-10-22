@@ -3,12 +3,12 @@ package com.tubesai;
 public class MagicCube {
     private int size;
     private int[][][] cube;
-    private int magicNumber;
+    private int magic_number;
 
     public MagicCube(int size) {
         this.size = size;
         this.cube = new int[size][size][size];
-        this.magicNumber = calculateMagicNumber();
+        this.magic_number = calculateMagicNumber();
         initializeCube();
     }
 
