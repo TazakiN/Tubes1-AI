@@ -86,6 +86,19 @@ public class Position {
     }
 
     /**
+     * Prints the current position in the format:
+     * Position{x=<x>, y=<y>, z=<z>}
+     * where <x>, <y>, and <z> are the respective coordinates.
+     */
+    public void printPosition() {
+        System.out.println("Position{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}');
+    }
+
+    /**
      * Checks if the given coordinate is within the valid range (0-4).
      *
      * @param coordinate the coordinate to check

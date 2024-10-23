@@ -9,14 +9,6 @@ public class HillClimbingSideMove implements IAlgorithm {
 
     @Override
     public void solve(MagicCube cube) {
-        for (int i = 0; i < max_side_moves; i++) {
-            int currentFitness = cube.evaluate();
-            cube.swapRandomCells();
-            int newFitness = cube.evaluate();
-            if (newFitness < currentFitness) {
-                // Revert to previous state
-                cube.swapRandomCells();
-            }
-        }
+        // TODO: Implement Hill Climbing Side Move algorithm
     }
 }

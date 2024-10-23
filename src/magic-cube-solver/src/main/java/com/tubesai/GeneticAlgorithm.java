@@ -15,11 +15,8 @@ public class GeneticAlgorithm implements IAlgorithm {
 
     @Override
     public void solve(MagicCube cube) {
-        List<MagicCube> population = generateInitialPopulation();
-        for (int i = 0; i < max_generations; i++) {
-            population = evolvePopulation(population);
-        }
         // Find best solution from population
+        // TODO: Implement Genetic Algorithm
     }
 
     private List<MagicCube> generateInitialPopulation() {

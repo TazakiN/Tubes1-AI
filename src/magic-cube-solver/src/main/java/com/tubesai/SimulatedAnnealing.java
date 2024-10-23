@@ -11,18 +11,6 @@ public class SimulatedAnnealing implements IAlgorithm {
 
     @Override
     public void solve(MagicCube cube) {
-        double temperature = initial_temperature;
-        while (temperature > 1) {
-            int currentFitness = cube.evaluate();
-            cube.swapRandomCells();
-            int newFitness = cube.evaluate();
-            if (newFitness < currentFitness || Math.random() < Math.exp((currentFitness - newFitness) / temperature)) {
-                // Accept new state
-            } else {
-                // Revert to previous state
-                cube.swapRandomCells();
-            }
-            temperature *= cooling_rate;
-        }
+        // TODO: Implement Simulated Annealing algorithm
     }
 }
