@@ -4,8 +4,8 @@ import java.util.Random;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+// import com.google.gson.Gson;
+// import com.google.gson.JsonObject;
 
 public class MagicCube {
     private int size;
@@ -35,21 +35,21 @@ public class MagicCube {
      *                      The JSON file is expected to have a "cube" key with a 3D array of integers.
      * @throws IOException if an I/O error occurs while reading the file.
      */
-    public MagicCube(String jsonFilePath) {
-        // Load state cube from json file and assuming its size is 5
-        try (FileReader reader = new FileReader(jsonFilePath)) {
-            // TODO: Resolved Gson and JsonObject import
-            Gson gson = new Gson();
-            JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
-            int[][][] loadedCube = gson.fromJson(jsonObject.get("cube"), int[][][].class);
-            this.size = loadedCube.length;
-            this.cube = loadedCube;
-            this.magic_number = 315;
-            this.fitness = evaluateObjFunc();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // public MagicCube(String jsonFilePath) {
+    //     // Load state cube from json file and assuming its size is 5
+    //     try (FileReader reader = new FileReader(jsonFilePath)) {
+    //         // TODO: Resolved Gson and JsonObject import
+    //         Gson gson = new Gson();
+    //         JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+    //         int[][][] loadedCube = gson.fromJson(jsonObject.get("cube"), int[][][].class);
+    //         this.size = loadedCube.length;
+    //         this.cube = loadedCube;
+    //         this.magic_number = 315;
+    //         this.fitness = evaluateObjFunc();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     /**
      * Constructs a MagicCube object by copying the state of another MagicCube object.
@@ -220,18 +220,18 @@ public class MagicCube {
 
     /**
      * Prints the current state of the magic cube to the console.
-     * The cube is represented as a 3x3x3 array, and this method
+     * The cube is represented as a 5x5x5 array, and this method
      * prints each layer of the cube in a readable format.
      * 
      * Each layer is printed with its corresponding layer number,
      * followed by the rows and columns of that layer.
      */
     public void printCube() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < size; i++) {
             System.out.println("Layer " + (i + 1) + ":");
-            for (int j = 0; j < 3; j++) {
-                for (int k = 0; k < 3; k++) {
-                    System.out.print(this.cube[i][j][k] + " ");
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    System.out.print(cube[i][j][k] + "\t");
                 }
                 System.out.println();
             }
@@ -244,21 +244,21 @@ public class MagicCube {
      *
      * @param jsonFilePath the path to the JSON file where the cube state will be saved
      */
-    public void saveCube(String jsonFilePath) {
-        // Save state cube to json file
-        try {
-            // TODO: Resolved Gson and JsonObject import
-            Gson gson = new Gson();
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.add("cube", gson.toJsonTree(this.cube));
-            try (FileWriter writer = new FileWriter(jsonFilePath)) {
-                gson.toJson(jsonObject, writer);
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // public void saveCube(String jsonFilePath) {
+    //     // Save state cube to json file
+    //     try {
+    //         // TODO: Resolved Gson and JsonObject import
+    //         Gson gson = new Gson();
+    //         JsonObject jsonObject = new JsonObject();
+    //         jsonObject.add("cube", gson.toJsonTree(this.cube));
+    //         try (FileWriter writer = new FileWriter(jsonFilePath)) {
+    //             gson.toJson(jsonObject, writer);
+    //         }
+    //     }
+    //     catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     /**
      * Retrieves the element from the magic cube at the specified position.
