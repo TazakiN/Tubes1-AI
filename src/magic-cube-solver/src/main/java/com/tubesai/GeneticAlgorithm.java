@@ -14,9 +14,10 @@ public class GeneticAlgorithm implements IAlgorithm {
     }
 
     @Override
-    public void solve(MagicCube cube) {
+    public MagicCube getSolvedCube(MagicCube cube) {
         // Find best solution from population
         // TODO: Implement Genetic Algorithm
+        return null;
     }
 
     private List<MagicCube> generateInitialPopulation() {
@@ -36,5 +37,29 @@ public class GeneticAlgorithm implements IAlgorithm {
 
     private void mutate(MagicCube cube) {
         // Mutate the cube based on mutation rate
+    }
+
+    public int getPopulationSize() {
+        return population_size;
+    }
+
+    public void setPopulationSize(int population_size) {
+        this.population_size = population_size;
+    }
+
+    public double getMutationRate() {
+        return mutation_rate;
+    }
+
+    public void setMutationRate(double mutation_rate) {
+        this.mutation_rate = mutation_rate;
+    }
+
+    public int getMaxGenerations() {
+        return max_generations;
+    }
+
+    public void setMaxGenerations(int max_generations) {
+        this.max_generations = max_generations;
     }
 }

@@ -1,5 +1,7 @@
 package com.tubesai;
 
+import java.util.Random;
+
 public class HillClimbingSideMove implements IAlgorithm {
     private int max_side_moves;
 
@@ -8,7 +10,12 @@ public class HillClimbingSideMove implements IAlgorithm {
     }
 
     @Override
-    public void solve(MagicCube cube) {
+    public MagicCube getSolvedCube(MagicCube cube) {
         // TODO: Implement Hill Climbing Side Move algorithm
+        return null;
+    }
+
+    public int getMaxSideMoves() {
+        return max_side_moves;
     }
 }
