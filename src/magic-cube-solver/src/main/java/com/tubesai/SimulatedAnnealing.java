@@ -33,29 +33,29 @@ public class SimulatedAnnealing implements IAlgorithm {
 
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
-        // TODO: Fix this algorithm logic so it matchs the best technique to solve the magic cube
+        // TODO: Fix this logic algorithm to matches the best technique to solve MagicCube (Liat catetan ucup)
         double temperature = initial_temperature;
         MagicCube currentSolution = new MagicCube(cube);
         MagicCube bestSolution = new MagicCube(cube);
 
         while (temperature > 1) {
-            MagicCube newSolution = getRandomNeighbour(currentSolution);
+            MagicCube neighbour = getRandomNeighbour(currentSolution);
 
-            int currentEnergy = currentSolution.getEnergy();
-            int neighbourEnergy = newSolution.getEnergy();
+            int currentFitness = currentSolution.getFitness();
+            int neighbourFitness = neighbour.getFitness();
 
-            if (acceptanceProbability(currentEnergy, neighbourEnergy, temperature) > Math.random()) {
-            currentSolution = newSolution;
+            if (acceptanceProbability(currentFitness, neighbourFitness, temperature) > Math.random()) {
+            currentSolution = new MagicCube(neighbour);
             }
 
-            if (currentSolution.getEnergy() < bestSolution.getEnergy()) {
-            bestSolution = currentSolution;
+            if (currentSolution.getFitness() < bestSolution.getFitness()) {
+            bestSolution = new MagicCube(currentSolution);
             }
 
             temperature *= 1 - cooling_rate;
         }
 
-        cube.copyFrom(bestSolution);
+        return bestSolution;
     }
 
     private double acceptanceProbability(int currentEnergy, int neighbourEnergy, double temperature) {
