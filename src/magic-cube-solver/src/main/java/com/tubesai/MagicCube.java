@@ -51,6 +51,18 @@ public class MagicCube {
     }
 
     /**
+     * Constructs a MagicCube object by copying the state of another MagicCube object.
+     * 
+     * @param cube the MagicCube object to be copied
+     */
+    public MagicCube(MagicCube cube) {
+        this.size = cube.getSize();
+        this.cube = cube.getCube();
+        this.magic_number = cube.getMagicNumber();
+        this.fitness = cube.getFitness();
+    }
+
+    /**
      * Initializes the 5x5x5 magic cube with sequential values from 1 to 125 and then shuffles the cube.
      * 
      * The cube is first initialized with sequential values in a 3D array. 
@@ -151,7 +163,7 @@ public class MagicCube {
     }
 
     /**
-     * Swaps the elements at the specified positions in the cube.
+     * Swaps the elements at the specified positions in the cube and automatically updates the fitness value.
      *
      * @param el1 the position of the first element to be swapped
      * @param el2 the position of the second element to be swapped
@@ -164,6 +176,12 @@ public class MagicCube {
 
         // Update fitness after swapping
         this.fitness = evaluateObjFunc();
+    }
+
+    public MagicCube getNeighbour(Position el1, Position el2) {
+        MagicCube neighbour = new MagicCube(this);
+        neighbour.moveToNeighbour(el1, el2);
+        return neighbour;
     }
 
     /**
@@ -206,6 +224,16 @@ public class MagicCube {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Retrieves the element from the magic cube at the specified position.
+     *
+     * @param pos the position in the cube from which to retrieve the element
+     * @return the element at the specified position in the cube
+     */
+    public int getCubeElement(Position pos) {
+        return cube[pos.getX()][pos.getY()][pos.getZ()];
     }
 
     public int getSize() {
