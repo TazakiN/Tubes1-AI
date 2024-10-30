@@ -1,10 +1,11 @@
 package com.tubesai;
 
 import java.util.Random;
-import java.io.FileReader;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
 import java.io.IOException;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 public class MagicCube {
     private int size;
@@ -31,19 +32,17 @@ public class MagicCube {
      * Constructs a MagicCube object by loading its state from a JSON file.
      *
      * @param jsonFilePath the path to the JSON file containing the cube's state.
-     *                      The JSON file is expected to have a "cube" key with a 3D array of integers.
+     *                     The JSON file is expected to have a "cube" key with a 3D
+     *                     array of integers.
      * @throws IOException if an I/O error occurs while reading the file.
      */
     public MagicCube(String jsonFilePath) {
-        // Load state cube from json file and assuming its size is 5
-        try (FileReader reader = new FileReader(jsonFilePath)) {
-            // TODO: Resolved Gson and JsonObject import
-            Gson gson = new Gson();
-            JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
-            int[][][] loadedCube = gson.fromJson(jsonObject.get("cube"), int[][][].class);
-            this.size = loadedCube.length;
-            this.cube = loadedCube;
-            this.magic_number = 315;
+        // Memuat state cube dari file JSON menggunakan Jackson
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            this.cube = objectMapper.readValue(new File(jsonFilePath), int[][][].class);
+            this.size = this.cube.length;
+            this.magic_number = 315; // Sesuaikan nilai magic_number jika diperlukan
             this.fitness = evaluateObjFunc();
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,7 +50,8 @@ public class MagicCube {
     }
 
     /**
-     * Constructs a MagicCube object by copying the state of another MagicCube object.
+     * Constructs a MagicCube object by copying the state of another MagicCube
+     * object.
      * 
      * @param cube the MagicCube object to be copied
      */
@@ -63,55 +63,57 @@ public class MagicCube {
     }
 
     /**
-     * Initializes the 5x5x5 magic cube with sequential values from 1 to 125 and then shuffles the cube.
+     * Initializes the 5x5x5 magic cube with sequential values from 1 to 125 and
+     * then shuffles the cube.
      * 
-     * The cube is first initialized with sequential values in a 3D array. 
-     * These values are then copied into a 1D array to facilitate shuffling using the Fisher-Yates algorithm.
+     * The cube is first initialized with sequential values in a 3D array.
+     * These values are then copied into a 1D array to facilitate shuffling using
+     * the Fisher-Yates algorithm.
      * After shuffling, the values are copied back into the 3D array.
      * 
-     * The shuffling ensures that the cube is randomized each time it is initialized.
+     * The shuffling ensures that the cube is randomized each time it is
+     * initialized.
      */
     private void initializeCube() {
         // Initialize cube with random or sequential values
 
         // make 5x5x5 cube
-        this.cube = new int[][][]
-        {
-            {
-                {1, 2, 3, 4, 5},
-                {6, 7, 8, 9, 10},
-                {11, 12, 13, 14, 15},
-                {16, 17, 18, 19, 20},
-                {21, 22, 23, 24, 25}
-            },
-            {
-                {26, 27, 28, 29, 30},
-                {31, 32, 33, 34, 35},
-                {36, 37, 38, 39, 40},
-                {41, 42, 43, 44, 45},
-                {46, 47, 48, 49, 50}
-            },
-            {
-                {51, 52, 53, 54, 55},
-                {56, 57, 58, 59, 60},
-                {61, 62, 63, 64, 65},
-                {66, 67, 68, 69, 70},
-                {71, 72, 73, 74, 75}
-            },
-            {
-                {76, 77, 78, 79, 80},
-                {81, 82, 83, 84, 85},
-                {86, 87, 88, 89, 90},
-                {91, 92, 93, 94, 95},
-                {96, 97, 98, 99, 100}
-            },
-            {
-                {101, 102, 103, 104, 105},
-                {106, 107, 108, 109, 110},
-                {111, 112, 113, 114, 115},
-                {116, 117, 118, 119, 120},
-                {121, 122, 123, 124, 125}
-            }
+        this.cube = new int[][][] {
+                {
+                        { 1, 2, 3, 4, 5 },
+                        { 6, 7, 8, 9, 10 },
+                        { 11, 12, 13, 14, 15 },
+                        { 16, 17, 18, 19, 20 },
+                        { 21, 22, 23, 24, 25 }
+                },
+                {
+                        { 26, 27, 28, 29, 30 },
+                        { 31, 32, 33, 34, 35 },
+                        { 36, 37, 38, 39, 40 },
+                        { 41, 42, 43, 44, 45 },
+                        { 46, 47, 48, 49, 50 }
+                },
+                {
+                        { 51, 52, 53, 54, 55 },
+                        { 56, 57, 58, 59, 60 },
+                        { 61, 62, 63, 64, 65 },
+                        { 66, 67, 68, 69, 70 },
+                        { 71, 72, 73, 74, 75 }
+                },
+                {
+                        { 76, 77, 78, 79, 80 },
+                        { 81, 82, 83, 84, 85 },
+                        { 86, 87, 88, 89, 90 },
+                        { 91, 92, 93, 94, 95 },
+                        { 96, 97, 98, 99, 100 }
+                },
+                {
+                        { 101, 102, 103, 104, 105 },
+                        { 106, 107, 108, 109, 110 },
+                        { 111, 112, 113, 114, 115 },
+                        { 116, 117, 118, 119, 120 },
+                        { 121, 122, 123, 124, 125 }
+                }
         };
 
         // Shuffle the cube
@@ -150,20 +152,50 @@ public class MagicCube {
         }
     }
 
-    // Belom ada docs/comment nya karena belom jadi (kalo udh jadi, tambahin nanti pake copilot "Generate docs")
-    public int evaluateObjFunc() { // int or float, decide later
-        // TODO: Evaluate the cube's fitness based on the magic cube conditions
+    /**
+     * Evaluates the objective function for the magic cube.
+     * 
+     * This method calculates the number of valid sums in the magic cube. It checks
+     * each row, column, and tower in every layer, as well as all space diagonals
+     * and plane diagonals. A valid sum is one that equals the magic number.
+     * 
+     * @return The total number of valid sums in the magic cube.
+     */
+    public int evaluateObjFunc() {
+        int totalValid = 0;
 
-        // Option 1, how many rows, columns, and diagonals (and other aspects if any) that sum up to magic number
+        // Periksa setiap baris, kolom, dan tiang pada setiap lapisan
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (sumRow(i, j) == magic_number)
+                    totalValid++;
+                if (sumColumn(i, j) == magic_number)
+                    totalValid++;
+                if (sumTower(i, j) == magic_number)
+                    totalValid++;
+            }
+        }
 
-        // Option 2, how many rows, columns, and diagonals (and other aspects if any) that NOT sum up to magic number (minus value, 0 is global optimum)
+        // Periksa semua diagonal ruang
+        if (sumSpaceDiagonal1() == magic_number)
+            totalValid++;
+        if (sumSpaceDiagonal2() == magic_number)
+            totalValid++;
 
-        // Option 3, decide one solution to achieve and calculate how many number that is not in position according to the solution that have been decided
-        return 0;
+        // Periksa semua diagonal bidang (9 bidang)
+        for (int i = 0; i < size; i++) {
+            if (sumPlaneDiagonal1(i) == magic_number)
+                totalValid++;
+            if (sumPlaneDiagonal2(i) == magic_number)
+                totalValid++;
+        }
+
+        return totalValid;
     }
 
     /**
-     * Swaps the elements at the specified positions in the cube and automatically updates the fitness value.
+     * Swaps the elements at the specified positions in the cube and automatically
+     * updates the fitness value.
      *
      * @param el1 the position of the first element to be swapped
      * @param el2 the position of the second element to be swapped
@@ -204,24 +236,34 @@ public class MagicCube {
             System.out.println();
         }
     }
-    
+
     /**
      * Saves the current state of the cube to a JSON file.
      *
-     * @param jsonFilePath the path to the JSON file where the cube state will be saved
+     * @param jsonFilePath the path to the JSON file where the cube state will be
+     *                     saved
      */
+    // public void saveCube(String jsonFilePath) {
+    // // Save state cube to json file
+    // try {
+    // // TODO: Resolved Gson and JsonObject import
+    // Gson gson = new Gson();
+    // JsonObject jsonObject = new JsonObject();
+    // jsonObject.add("cube", gson.toJsonTree(this.cube));
+    // try (FileWriter writer = new FileWriter(jsonFilePath)) {
+    // gson.toJson(jsonObject, writer);
+    // }
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
+    // }
+
     public void saveCube(String jsonFilePath) {
-        // Save state cube to json file
+        // Menyimpan state cube ke file JSON menggunakan Jackson
         try {
-            // TODO: Resolved Gson and JsonObject import
-            Gson gson = new Gson();
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.add("cube", gson.toJsonTree(this.cube));
-            try (FileWriter writer = new FileWriter(jsonFilePath)) {
-                gson.toJson(jsonObject, writer);
-            }
-        }
-        catch (IOException e) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(new File(jsonFilePath), this.cube);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -251,4 +293,101 @@ public class MagicCube {
     public int getFitness() {
         return fitness;
     }
+
+    /**
+     * Gets the energy (fitness) value of the current cube state.
+     * This is an alias for getFitness() to maintain consistency with the
+     * SimulatedAnnealing algorithm.
+     *
+     * @return the energy/fitness value of the cube
+     */
+    public double getEnergy() {
+        return this.fitness;
+    }
+
+    /**
+     * Copies the state of another MagicCube object into this one.
+     *
+     * @param other the MagicCube object whose state will be copied
+     */
+    public void copyFrom(MagicCube other) {
+        this.size = other.getSize();
+        this.magic_number = other.getMagicNumber();
+        this.fitness = other.getFitness();
+
+        // Deep copy the cube array
+        this.cube = new int[size][size][size];
+        int[][][] otherCube = other.getCube();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    this.cube[i][j][k] = otherCube[i][j][k];
+                }
+            }
+        }
+    }
+
+    // Sum semua elemen di baris j pada layer i
+    private int sumRow(int layer, int row) {
+        int sum = 0;
+        for (int k = 0; k < size; k++) {
+            sum += cube[layer][row][k];
+        }
+        return sum;
+    }
+
+    // Sum semua elemen di kolom j pada layer i
+    private int sumColumn(int layer, int column) {
+        int sum = 0;
+        for (int k = 0; k < size; k++) {
+            sum += cube[layer][k][column];
+        }
+        return sum;
+    }
+
+    // Sum semua elemen di tiang j pada kolom i
+    private int sumTower(int row, int column) {
+        int sum = 0;
+        for (int k = 0; k < size; k++) {
+            sum += cube[k][row][column];
+        }
+        return sum;
+    }
+
+    // Sum diagonal ruang dari (0,0,0) ke (n-1,n-1,n-1)
+    private int sumSpaceDiagonal1() {
+        int sum = 0;
+        for (int i = 0; i < size; i++) {
+            sum += cube[i][i][i];
+        }
+        return sum;
+    }
+
+    // Sum diagonal ruang dari (0,0,n-1) ke (n-1,n-1,0)
+    private int sumSpaceDiagonal2() {
+        int sum = 0;
+        for (int i = 0; i < size; i++) {
+            sum += cube[i][i][size - 1 - i];
+        }
+        return sum;
+    }
+
+    // Sum diagonal pada bidang XY di layer tertentu
+    private int sumPlaneDiagonal1(int layer) {
+        int sum = 0;
+        for (int i = 0; i < size; i++) {
+            sum += cube[layer][i][i];
+        }
+        return sum;
+    }
+
+    // Sum diagonal lainnya pada bidang XY di layer tertentu
+    private int sumPlaneDiagonal2(int layer) {
+        int sum = 0;
+        for (int i = 0; i < size; i++) {
+            sum += cube[layer][i][size - 1 - i];
+        }
+        return sum;
+    }
+
 }
