@@ -5,5 +5,7 @@ public class Main {
         MagicCube magicCube = new MagicCube(5);
         int ans = magicCube.evaluateObjFunc();
         System.out.println(ans);
+
+        CubeVisualizer.visualize(magicCube);
     }
 }
