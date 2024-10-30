@@ -225,10 +225,10 @@ public class MagicCube {
      * followed by the rows and columns of that layer.
      */
     public void printCube() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < size; i++) {
             System.out.println("Layer " + (i + 1) + ":");
-            for (int j = 0; j < 3; j++) {
-                for (int k = 0; k < 3; k++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
                     System.out.print(this.cube[i][j][k] + " ");
                 }
                 System.out.println();
