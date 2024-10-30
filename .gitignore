@@ -1,2 +1,2 @@
 .vscode/
-src/magic-cube-solver/target/
+src/magic-cube-solver/target/*
