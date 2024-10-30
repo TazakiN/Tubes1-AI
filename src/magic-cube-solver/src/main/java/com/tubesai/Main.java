@@ -1,9 +1,9 @@
 package com.tubesai;
 
-import java.util.Random;
-
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Magic Cube Solver is running...");
+        MagicCube magicCube = new MagicCube(5);
+        int ans = magicCube.evaluateObjFunc();
+        System.out.println(ans);
     }
 }
