@@ -17,6 +17,7 @@ public class CubeVisualizer {
             Color.DARK_GRAY, Color.BLACK, Color.WHITE
     };
     private static JLabel[] summaryLabels;
+    private static JLabel hoveredCellLabel;
 
     /**
      * Visualizes the given MagicCube in a graphical user interface.
@@ -60,7 +61,7 @@ public class CubeVisualizer {
         for (int z = 0; z < size; z++) {
             JPanel panel = new JPanel();
             panel.setLayout(new GridLayout(size, size));
-            panel.setBorder(BorderFactory.createTitledBorder("Bidang di Z = " + (z + 1)));
+            panel.setBorder(BorderFactory.createTitledBorder("Layer: " + (z + 1)));
 
             for (int y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
@@ -78,6 +79,16 @@ public class CubeVisualizer {
 
             cubePanel.add(panel);
         }
+
+        JPanel labelHoveredPanel = new JPanel();
+        labelHoveredPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        labelHoveredPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        hoveredCellLabel = new JLabel("Hover mouse over a cell to highlight related cells.", SwingConstants.CENTER);
+
+        labelHoveredPanel.add(hoveredCellLabel);
+
+        cubePanel.add(labelHoveredPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
@@ -101,12 +112,16 @@ public class CubeVisualizer {
 
         @Override
         public void mouseEntered(MouseEvent e) {
+            // Update position text
+            hoveredCellLabel.setText(String.format("Position: x = %d, y = %d, z = %d", z + 1, y + 1, x + 1));
             highlightRelatedCells();
             updateSummaryLabels();
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
+            // Reset text
+            hoveredCellLabel.setText("Hover mouse over a cell to highlight related cells.");
             resetHighlightedCells();
             updateSummaryLabels();
         }
