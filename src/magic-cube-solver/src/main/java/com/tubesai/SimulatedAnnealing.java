@@ -13,7 +13,7 @@ public class SimulatedAnnealing implements IAlgorithm {
 
     public MagicCube getRandomNeighbour(MagicCube cube) {
         MagicCube neighbor = new MagicCube(cube);
-        
+
         // Get random two Positions
         Random rand = new Random();
         int x1 = rand.nextInt(cube.getSize());
@@ -33,7 +33,8 @@ public class SimulatedAnnealing implements IAlgorithm {
 
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
-        // TODO: Fix this algorithm logic so it matchs the best technique to solve the magic cube
+        // TODO: Fix this algorithm logic so it matchs the best technique to solve the
+        // magic cube
         double temperature = initial_temperature;
         MagicCube currentSolution = new MagicCube(cube);
         MagicCube bestSolution = new MagicCube(cube);
@@ -41,21 +42,22 @@ public class SimulatedAnnealing implements IAlgorithm {
         while (temperature > 1) {
             MagicCube newSolution = getRandomNeighbour(currentSolution);
 
-            int currentEnergy = currentSolution.getEnergy();
-            int neighbourEnergy = newSolution.getEnergy();
+            int currentEnergy = (int) currentSolution.getEnergy();
+            int neighbourEnergy = (int) newSolution.getEnergy();
 
             if (acceptanceProbability(currentEnergy, neighbourEnergy, temperature) > Math.random()) {
-            currentSolution = newSolution;
+                currentSolution = newSolution;
             }
 
             if (currentSolution.getEnergy() < bestSolution.getEnergy()) {
-            bestSolution = currentSolution;
+                bestSolution = currentSolution;
             }
 
             temperature *= 1 - cooling_rate;
         }
 
         cube.copyFrom(bestSolution);
+        return bestSolution;
     }
 
     private double acceptanceProbability(int currentEnergy, int neighbourEnergy, double temperature) {
