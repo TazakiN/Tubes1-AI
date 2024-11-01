@@ -7,22 +7,16 @@ public class Main {
         // This just a test to see if the SimulatedAnnealing works
         MagicCube cube = new MagicCube(5);
 
-        SimulatedAnnealing solver = new SimulatedAnnealing(100, 1);
-        MagicCube solvedCube = solver.getSolvedCube(cube);
-
+        SimulatedAnnealing solver = new SimulatedAnnealing(1000000, 0.003);
+        
         System.out.println("Starter Cube:");
         System.out.println("Fitness: " + cube.getFitness());
         cube.printCube();
         System.out.println();
-        System.out.println("Solved Cube:");
-        System.out.println("Fitness: " + solvedCube.getFitness());
-        solvedCube.printCube();
+        MagicCube solvedCube = solver.getSolvedCube(cube);
+        System.out.println("Solved Fitness: " + solvedCube.getFitness());
+        System.out.println();
 
-        // This is just a test to see if the Visualize MagicCube works
-        MagicCube magicCube = new MagicCube(5);
-        int ans = magicCube.evaluateObjFunc();
-        System.out.println(ans);
-
-        CubeVisualizer.visualize(magicCube);
+        // CubeVisualizer.visualize(cube);
     }
 }
