@@ -210,6 +210,39 @@ public class MagicCube {
         this.fitness = evaluateObjFunc();
     }
 
+    /**
+     * Changes the cube to a random state by performing a series of random moves.
+     * This method generates random positions within the cube and moves elements
+     * between these positions to achieve a randomized state.
+     * 
+     * The method performs 125 random moves, where each move involves selecting
+     * two random positions within the cube and swapping their elements.
+     */
+    public void moveToRandomState() {
+        // Change the cube to a random state
+        Random rand = new Random();
+        for (int i = 0; i < 125; i++) {
+            int x1 = rand.nextInt(5);
+            int y1 = rand.nextInt(5);
+            int z1 = rand.nextInt(5);
+            Position el1 = new Position(x1, y1, z1);
+
+            int x2 = rand.nextInt(5);
+            int y2 = rand.nextInt(5);
+            int z2 = rand.nextInt(5);
+            Position el2 = new Position(x2, y2, z2);
+
+            moveToNeighbour(el1, el2);
+        }
+    }
+
+    /**
+     * Generates a neighboring MagicCube by moving from one position to another.
+     *
+     * @param el1 The starting position.
+     * @param el2 The target position.
+     * @return A new MagicCube instance that represents the neighboring state after the move.
+     */
     public MagicCube getNeighbour(Position el1, Position el2) {
         MagicCube neighbour = new MagicCube(this);
         neighbour.moveToNeighbour(el1, el2);
@@ -218,7 +251,7 @@ public class MagicCube {
 
     /**
      * Prints the current state of the magic cube to the console.
-     * The cube is represented as a 3x3x3 array, and this method
+     * The cube is represented as a 5x5x5 array, and this method
      * prints each layer of the cube in a readable format.
      * 
      * Each layer is printed with its corresponding layer number,
