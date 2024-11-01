@@ -262,7 +262,7 @@ public class MagicCube {
             System.out.println("Layer " + (i + 1) + ":");
             for (int j = 0; j < size; j++) {
                 for (int k = 0; k < size; k++) {
-                    System.out.print(this.cube[i][j][k] + " ");
+                    System.out.print(this.cube[i][j][k] + "\t");
                 }
                 System.out.println();
             }
