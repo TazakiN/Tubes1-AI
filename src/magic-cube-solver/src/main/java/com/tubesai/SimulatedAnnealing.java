@@ -58,10 +58,10 @@ public class SimulatedAnnealing implements IAlgorithm {
         return bestSolution;
     }
 
-    private double acceptanceProbability(int currentEnergy, int neighbourEnergy, double temperature) {
-        if (neighbourEnergy < currentEnergy) {
+    private double acceptanceProbability(int currentFitness, int neighbourFitness, double temperature) {
+        if (neighbourFitness < currentFitness) {
             return 1.0;
         }
-        return Math.exp((currentEnergy - neighbourEnergy) / temperature);
+        return Math.exp((currentFitness - neighbourFitness) / temperature);
     }
 }
