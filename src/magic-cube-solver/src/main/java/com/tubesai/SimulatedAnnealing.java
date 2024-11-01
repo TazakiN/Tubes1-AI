@@ -13,7 +13,7 @@ public class SimulatedAnnealing implements IAlgorithm {
 
     public MagicCube getRandomNeighbour(MagicCube cube) {
         MagicCube neighbor = new MagicCube(cube);
-        
+
         // Get random two Positions
         Random rand = new Random();
         int x1 = rand.nextInt(cube.getSize());

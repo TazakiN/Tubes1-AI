@@ -17,5 +17,12 @@ public class Main {
         System.out.println("Solved Cube:");
         System.out.println("Fitness: " + solvedCube.getFitness());
         solvedCube.printCube();
+
+        // This is just a test to see if the Visualize MagicCube works
+        MagicCube magicCube = new MagicCube(5);
+        int ans = magicCube.evaluateObjFunc();
+        System.out.println(ans);
+
+        CubeVisualizer.visualize(magicCube);
     }
 }
