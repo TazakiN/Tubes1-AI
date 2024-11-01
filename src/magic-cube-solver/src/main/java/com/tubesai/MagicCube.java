@@ -24,8 +24,8 @@ public class MagicCube {
         this.size = size;
         this.cube = new int[size][size][size];
         this.magic_number = 315;
-        this.fitness = evaluateObjFunc();
         initializeCube();
+        this.fitness = evaluateObjFunc();
     }
 
     /**
