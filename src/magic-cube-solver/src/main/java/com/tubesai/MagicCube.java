@@ -12,6 +12,7 @@ public class MagicCube {
     private int[][][] cube;
     private int magic_number;
     private int fitness; // int or float, decide later
+    public String sequence = "";
 
     /**
      * Constructs a MagicCube object with the specified size.
@@ -25,6 +26,15 @@ public class MagicCube {
         this.cube = new int[size][size][size];
         this.magic_number = 315;
         initializeCube();
+
+        for(int i = 0 ; i < 5 ; i++){
+            for(int j = 0 ; j < 5 ; j++){
+                for(int k = 0 ; k < 5 ; k++){
+                    sequence += "-" + cube[i][j][k];
+                }
+            }
+        }
+
         this.fitness = evaluateObjFunc();
     }
 
@@ -56,8 +66,18 @@ public class MagicCube {
      * @param cube the MagicCube object to be copied
      */
     public MagicCube(MagicCube cube) {
+        
         this.size = cube.getSize();
-        this.cube = cube.getCube();
+        this.cube = new int[size][size][size];
+        
+        for(int i = 0 ; i < size ; i++){
+            for(int j = 0 ; j < size ; j++){
+                for(int k = 0 ; k < size ; k++){
+                    this.cube[i][j][k] = cube.getCubeElement(new Position(i, j, k));
+                }
+            }
+        }
+
         this.magic_number = cube.getMagicNumber();
         this.fitness = cube.getFitness();
     }
