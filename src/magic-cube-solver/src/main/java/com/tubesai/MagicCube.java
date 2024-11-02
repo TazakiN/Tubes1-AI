@@ -186,6 +186,38 @@ public class MagicCube {
         return -total;
     }
 
+    public int evaluateObjFunc2() {
+        int totalValid = 0;
+
+        // Periksa setiap baris, kolom, dan tiang pada setiap lapisan
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (sumRow(i, j) == magic_number)
+                    totalValid++;
+                if (sumColumn(i, j) == magic_number)
+                    totalValid++;
+                if (sumTower(i, j) == magic_number)
+                    totalValid++;
+            }
+        }
+
+        // Periksa semua diagonal ruang
+        if (sumSpaceDiagonal1() == magic_number)
+            totalValid++;
+        if (sumSpaceDiagonal2() == magic_number)
+            totalValid++;
+
+        // Periksa semua diagonal bidang (9 bidang)
+        for (int i = 0; i < size; i++) {
+            if (sumPlaneDiagonal1(i) == magic_number)
+                totalValid++;
+            if (sumPlaneDiagonal2(i) == magic_number)
+                totalValid++;
+        }
+
+        return totalValid;
+    }
+
     /**
      * Swaps the elements at the specified positions in the cube and automatically
      * updates the fitness value.
