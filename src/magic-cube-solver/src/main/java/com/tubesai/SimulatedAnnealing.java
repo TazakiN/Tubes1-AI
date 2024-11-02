@@ -1,18 +1,27 @@
 package com.tubesai;
 
+import java.util.ArrayList;
 import java.util.Random;
 // import java.math.BigDecimal;
 
 public class SimulatedAnnealing implements IAlgorithm {
-    private double initial_temperature;     // set to 100
-    private double cooling_rate;            // set to 0.00001
+    private double initial_temperature;     // set to 10
+    private double cooling_rate;            // set to 0.000001
+    private ArrayList<Double> probabilityHistory;   // <index + 1> represents the iteration, <value> represents the probability
     // private int counter = 0;
 
     public SimulatedAnnealing(double initial_temperature, double cooling_rate) {
         this.initial_temperature = initial_temperature;
         this.cooling_rate = cooling_rate;
+        this.probabilityHistory = new ArrayList<Double>();
     }
 
+    /**
+     * Generates a random neighboring state of the given MagicCube by swapping two random positions.
+     *
+     * @param cube the current state of the MagicCube
+     * @return a new MagicCube instance with two elements swapped
+     */
     public MagicCube getRandomNeighbour(MagicCube cube) {
         MagicCube neighbor = new MagicCube(cube);
 
@@ -33,12 +42,19 @@ public class SimulatedAnnealing implements IAlgorithm {
         return neighbor;
     }
 
+    /**
+     * Solves the given MagicCube using the Simulated Annealing algorithm. Resets and updates the probabilityHistory attribute.
+     *
+     * @param cube the initial MagicCube to be solved
+     * @return the solved MagicCube with the best fitness found
+     */
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
-        // TODO: Fix this logic algorithm to matches the best technique to solve MagicCube (Liat catetan ucup)
         double temperature = initial_temperature;
         MagicCube currentCube = new MagicCube(cube);
         MagicCube bestCube = new MagicCube(cube);
+
+        probabilityHistory.clear();
 
         // int movedWorseNeigbourCount = 0;
 
@@ -48,7 +64,11 @@ public class SimulatedAnnealing implements IAlgorithm {
             int currentFitness = currentCube.getFitness();
             int neighbourFitness = neighbour.getFitness();
 
-            if (acceptanceProbability(currentFitness, neighbourFitness, temperature) > 0.95) {
+            double accProbability = acceptanceProbability(currentFitness, neighbourFitness, temperature);
+
+            probabilityHistory.add(accProbability);
+
+            if (accProbability > 0.95) {
                 if (!(neighbourFitness > currentFitness)) {
                     // movedWorseNeigbourCount++;
                 }
@@ -57,8 +77,8 @@ public class SimulatedAnnealing implements IAlgorithm {
 
             if (currentFitness > bestCube.getFitness()) {
                 bestCube = new MagicCube(currentCube);
-                // System.out.println("Best Fitness: " + bestCube.getFitness());
-                // System.out.println("Temperature: " + temperature);
+                System.out.println("Best Fitness: " + bestCube.getFitness());
+                System.out.println("Temperature: " + temperature);
             }
 
             temperature *= 1 - cooling_rate;
@@ -67,11 +87,29 @@ public class SimulatedAnnealing implements IAlgorithm {
         return bestCube;
     }
 
+    /**
+     * Calculates the acceptance probability of moving to a neighboring solution
+     * in the simulated annealing algorithm.
+     *
+     * @param currentFitness   the fitness value of the current solution
+     * @param neighbourFitness the fitness value of the neighboring solution
+     * @param temperature      the current temperature in the simulated annealing process
+     * @return the acceptance probability of moving to the neighboring solution
+     */
     private double acceptanceProbability(int currentFitness, int neighbourFitness, double temperature) {
         if (neighbourFitness > currentFitness) {
             // counter++;
             return 1.0;
         }
         return Math.exp((neighbourFitness - currentFitness) / temperature);
+    }
+
+    /**
+     * Retrieves the history of probabilities recorded during the simulated annealing process.
+     *
+     * @return An ArrayList of Double values representing the probability history and the <index + 1> as the iteration
+     */
+    public ArrayList<Double> getProbabilityHistory() {
+        return probabilityHistory;
     }
 }
