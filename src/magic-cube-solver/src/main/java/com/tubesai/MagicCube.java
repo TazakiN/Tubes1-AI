@@ -42,7 +42,7 @@ public class MagicCube {
             ObjectMapper objectMapper = new ObjectMapper();
             this.cube = objectMapper.readValue(new File(jsonFilePath), int[][][].class);
             this.size = this.cube.length;
-            this.magic_number = 315; // Sesuaikan nilai magic_number jika diperlukan
+            this.magic_number = 315;
             this.fitness = evaluateObjFunc();
         } catch (IOException e) {
             e.printStackTrace();
@@ -162,35 +162,28 @@ public class MagicCube {
      * @return The total number of valid sums in the magic cube.
      */
     public int evaluateObjFunc() {
-        int totalValid = 0;
+        int total = 0;
 
         // Periksa setiap baris, kolom, dan tiang pada setiap lapisan
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (sumRow(i, j) == magic_number)
-                    totalValid++;
-                if (sumColumn(i, j) == magic_number)
-                    totalValid++;
-                if (sumTower(i, j) == magic_number)
-                    totalValid++;
+                total += Math.pow(sumRow(i, j) - magic_number, 2);
+                total += Math.pow(sumColumn(i, j) - magic_number, 2);
+                total += Math.pow(sumTower(i, j) - magic_number, 2);
             }
         }
 
         // Periksa semua diagonal ruang
-        if (sumSpaceDiagonal1() == magic_number)
-            totalValid++;
-        if (sumSpaceDiagonal2() == magic_number)
-            totalValid++;
+        total += Math.pow(sumSpaceDiagonal1() - magic_number, 2);
+        total += Math.pow(sumSpaceDiagonal2(), 2);
 
         // Periksa semua diagonal bidang (9 bidang)
         for (int i = 0; i < size; i++) {
-            if (sumPlaneDiagonal1(i) == magic_number)
-                totalValid++;
-            if (sumPlaneDiagonal2(i) == magic_number)
-                totalValid++;
+            total += Math.pow(sumPlaneDiagonal1(i) - magic_number, 2);
+            total += Math.pow(sumPlaneDiagonal2(i) - magic_number, 2);
         }
 
-        return totalValid;
+        return -total;
     }
 
     /**
@@ -241,7 +234,8 @@ public class MagicCube {
      *
      * @param el1 The starting position.
      * @param el2 The target position.
-     * @return A new MagicCube instance that represents the neighboring state after the move.
+     * @return A new MagicCube instance that represents the neighboring state after
+     *         the move.
      */
     public MagicCube getNeighbour(Position el1, Position el2) {
         MagicCube neighbour = new MagicCube(this);
