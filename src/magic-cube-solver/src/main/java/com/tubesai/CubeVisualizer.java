@@ -17,14 +17,21 @@ public class CubeVisualizer {
     private static int size;
     private static int[][][] cubeValues;
     private static Color[] highlightColors = {
-            Color.YELLOW, Color.CYAN, Color.MAGENTA,
-            Color.ORANGE, Color.PINK, Color.GREEN,
-            Color.BLUE, Color.RED, Color.LIGHT_GRAY,
-            Color.DARK_GRAY, Color.BLACK, Color.WHITE
+            Color.YELLOW,
+            Color.CYAN,
+            Color.PINK,
+            Color.ORANGE,
+            new Color(255, 182, 193), // Light Pink
+            new Color(173, 216, 230), // Light Blue
+            new Color(144, 238, 144), // Light Green
+            new Color(255, 228, 181), // Moccasin
+            new Color(255, 250, 205), // Lemon Chiffon
+            new Color(255, 239, 213), // Papaya Whip
+            Color.WHITE
     };
     private static JLabel[] summaryLabels;
     private static JLabel hoveredCellLabel;
-    private static ChartPanel chartPanel; // Use ChartPanel from JFreeChart
+    private static ChartPanel chartPanel;
     private static GraphData graphData;
 
     /**
@@ -48,16 +55,15 @@ public class CubeVisualizer {
         JPanel mainPanel = new JPanel(new BorderLayout());
         frame.add(mainPanel);
 
-        // Label to show hovered cell info
         hoveredCellLabel = new JLabel("Hover mouse over a cell to highlight related cells.", SwingConstants.CENTER);
         hoveredCellLabel.setPreferredSize(new Dimension(400, 30));
         mainPanel.add(hoveredCellLabel, BorderLayout.NORTH);
 
-        // Cube panel
         JPanel cubePanel = new JPanel(new GridLayout(1, size));
-        JScrollPane scrollPane = new JScrollPane(cubePanel);
+        JPanel cubePanel2 = new JPanel(new BorderLayout(2, 1));
+        cubePanel2.add(cubePanel);
+        JScrollPane scrollPane = new JScrollPane(cubePanel2);
 
-        // Create cube layers
         for (int z = 0; z < size; z++) {
             JPanel layerPanel = new JPanel(new GridLayout(size, size));
             layerPanel.setBorder(BorderFactory.createTitledBorder("Layer " + (z + 1)));
@@ -77,11 +83,9 @@ public class CubeVisualizer {
             cubePanel.add(layerPanel);
         }
 
-        // Chart panel using JFreeChart
         chartPanel = new ChartPanel(null);
         chartPanel.setPreferredSize(new Dimension(800, 400));
 
-        // Use JSplitPane to show cubePanel and chartPanel
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, chartPanel);
         splitPane.setResizeWeight(0.7);
         mainPanel.add(splitPane, BorderLayout.CENTER);
@@ -95,18 +99,14 @@ public class CubeVisualizer {
             summaryLabels[i].setPreferredSize(new Dimension(100, 30));
             summaryPanel.add(summaryLabels[i]);
         }
-        mainPanel.add(summaryPanel, BorderLayout.SOUTH);
+        cubePanel2.add(summaryPanel, BorderLayout.SOUTH);
 
-        // Create dummy GraphData
         CubeVisualizer.graphData = graphData;
 
-        // Initial chart update
         updateChart();
 
         frame.setVisible(true);
     }
-
-    // Rest of the code remains the same, except modify updateSummaryLabels()
 
     /**
      * Updates the summary labels with the sum of cube values for each highlight
@@ -131,12 +131,10 @@ public class CubeVisualizer {
             }
         }
 
-        // Update summary labels
         for (int i = 0; i < highlightColors.length; i++) {
             summaryLabels[i].setText("Jumlah : " + colorSums[i]);
         }
 
-        // Create chart dataset
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (int i = 0; i < colorSums.length; i++) {
             dataset.addValue(colorSums[i], "Jumlah", "Warna " + (i + 1));
@@ -153,10 +151,9 @@ public class CubeVisualizer {
         updateChart();
     }
 
-    // Method to create dummy GraphData
     public static GraphData createDummyGraphData() {
         GraphData dummyData = new GraphData();
-        for (int iter = 0; iter < 100; iter++) {
+        for (int iter = 0; iter < 50; iter++) {
             for (int i = 0; i < 5; i++) {
                 int objFuncValue = (int) (Math.random() * 100) + iter * 10;
                 dummyData.addData(objFuncValue);
@@ -166,7 +163,6 @@ public class CubeVisualizer {
         return dummyData;
     }
 
-    // Add this method to update the chart
     private static void updateChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
@@ -190,8 +186,6 @@ public class CubeVisualizer {
         chartPanel.setChart(chart);
     }
 
-    // CubeMouseListener class remains the same
-
     /**
      * CubeMouseListener is a MouseAdapter that highlights related cells in a 3D
      * grid when the mouse enters or exits a cell. It highlights cells in the same
@@ -211,7 +205,6 @@ public class CubeVisualizer {
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            // Update position text
             hoveredCellLabel.setText(String.format("Position: x = %d, y = %d, z = %d", z + 1, y + 1, x + 1));
             highlightRelatedCells();
             updateSummaryLabels();
@@ -219,7 +212,6 @@ public class CubeVisualizer {
 
         @Override
         public void mouseExited(MouseEvent e) {
-            // Reset text
             hoveredCellLabel.setText("Hover mouse over a cell to highlight related cells.");
             resetHighlightedCells();
             updateSummaryLabels();
