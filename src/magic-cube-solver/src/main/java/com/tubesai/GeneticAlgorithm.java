@@ -1,42 +1,197 @@
 package com.tubesai;
 
-import java.util.List;
+import java.util.*;
 
 public class GeneticAlgorithm implements IAlgorithm {
+    private List<MagicCube> populations;
     private int population_size;
     private double mutation_rate;
     private int max_generations;
+    private MagicCube bestCube;
 
-    public GeneticAlgorithm(int population_size, double mutation_rate, int max_generations) {
+    public GeneticAlgorithm(int population_size, int max_generations, double mutation_rate) {
         this.population_size = population_size;
-        this.mutation_rate = mutation_rate;
         this.max_generations = max_generations;
+        this.mutation_rate = mutation_rate;
+        this.bestCube = new MagicCube(5);
+        this.populations = new ArrayList<>();
+        this.generateInitialPopulation();
     }
 
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
         // Find best solution from population
         // TODO: Implement Genetic Algorithm
-        return null;
+        int i=1;
+        int best_eval;
+        do {
+            List<MagicCube> new_mcs = new ArrayList<>();
+            for (int j=0; j<this.population_size/2; j++) {
+                MagicCube cube1 = this.randomMagicCube();
+                MagicCube cube2 = this.randomMagicCube();
+                List<MagicCube> children = this.crossover(cube1, cube2);
+                for (MagicCube child : children) {
+                    MagicCube mutated_child = this.mutate(child);
+                    new_mcs.add(mutated_child);
+                }
+            }
+            this.populations = new_mcs;
+            i++;
+            best_eval = this.getBestFitness();
+            this.mutation_rate -= 0.005;
+        } while (i < this.max_generations && best_eval > -100);
+        return this.bestCube;
     }
 
-    private List<MagicCube> generateInitialPopulation() {
+    private void generateInitialPopulation() {
         // Generate random initial population of MagicCubes
+        for (int i=0; i<this.population_size; i++) {
+            MagicCube mc = new MagicCube(5);
+            // mc.printCube();
+            this.populations.add(mc);
+        }
+    }
+
+    private MagicCube randomMagicCube() {
+        Random rand = new Random();
+        int sum = 0;
+        for (MagicCube mc : this.populations) {
+            sum += mc.getFitness();
+        }
+        double select = rand.nextDouble();
+        select *= 100;
+        System.out.println(select);
+        double temp = 0.0;
+        System.out.println("Test");
+        for (MagicCube mc : this.populations) {
+            temp += (mc.getFitness()*100/sum);
+            System.out.println(temp);
+            if (select <= temp) {
+                return mc;
+            }
+        }
         return null;
     }
 
-    private List<MagicCube> evolvePopulation(List<MagicCube> population) {
-        // Apply selection, crossover, and mutation
-        return null;
+    private int[] translateCubetoArray(MagicCube mc) {
+        int size = mc.getSize();
+        int[] ret = new int[125];
+        for (int i=0; i<size; i++) {
+            for (int j=0; j<size; j++) {
+                for (int k=0; k<size; k++) {
+                    Position pos = new Position(i, j, k);
+                    int index = i*25 + j*5 + k;
+                    ret[index] = mc.getCubeElement(pos);
+                }
+            }
+        }
+        return ret;
     }
 
-    private MagicCube crossover(MagicCube parent1, MagicCube parent2) {
+    private MagicCube translateArraytoCube(int[] arr) {
+        MagicCube ret = new MagicCube(5);
+        for (int i=0; i<5; i++) {
+            for (int j=0; j<5; j++) {
+                for (int k=0; k<5; k++) {
+                    Position pos = new Position(i, j, k);
+                    int index = i*25 + j*5 + k;
+                    ret.setCubeElement(pos, arr[index]);
+                }
+            }
+        }
+        return ret;
+    }
+
+    private List<MagicCube> crossover(MagicCube parent1, MagicCube parent2) {
         // Combine two MagicCubes to create a new MagicCube
-        return null;
+        Random rand = new Random();
+        int[] arr_parent1 = this.translateCubetoArray(parent1);
+        int[] arr_parent2 = this.translateCubetoArray(parent2);
+
+        int[] child1 = new int[125];
+        int[] child2 = new int[125];
+        Arrays.fill(child1, -1);
+        Arrays.fill(child2, -1);
+
+        int crossover_point1 = rand.nextInt(0, 124);
+        int crossover_point2 = rand.nextInt(0, 124);
+        if (crossover_point1 > crossover_point2) {
+            int temp = crossover_point1;
+            crossover_point1 = crossover_point2;
+            crossover_point2 = temp;
+        }
+
+        for (int i=crossover_point1; i<=crossover_point2; i++) {
+            child1[i] = arr_parent1[i];
+            child2[i] = arr_parent2[i];
+        }
+
+        Map<Integer, Integer> mapping1 = new HashMap<>();
+        Map<Integer, Integer> mapping2 = new HashMap<>();
+        for (int i = crossover_point1; i <= crossover_point2; i++) {
+            mapping1.put(arr_parent2[i], arr_parent1[i]);
+            mapping2.put(arr_parent1[i], arr_parent2[i]);
+        }
+
+        for (int i = 0; i < 125; i++) {
+            if (child1[i] == -1) {
+                int gene = arr_parent2[i];
+                while (mapping1.containsKey(gene)) {
+                    gene = mapping1.get(gene);
+                }
+                child1[i] = gene;
+            }
+        }
+
+        for (int i = 0; i < 125; i++) {
+            if (child2[i] == -1) {
+                int gene = arr_parent1[i];
+                while (mapping2.containsKey(gene)) {
+                    gene = mapping2.get(gene);
+                }
+                child2[i] = gene;
+            }
+        }
+
+        MagicCube mc_child1 = this.translateArraytoCube(arr_parent1);
+        MagicCube mc_child2 = this.translateArraytoCube(arr_parent2);
+
+        List<MagicCube> ret = new ArrayList<>();
+        ret.add(mc_child1);
+        ret.add(mc_child2);
+
+        return ret;
     }
 
-    private void mutate(MagicCube cube) {
+    private MagicCube mutate(MagicCube cube) {
         // Mutate the cube based on mutation rate
+        Random rand = new Random();
+
+        int[] arr_chromosome = this.translateCubetoArray(cube);
+
+        if (rand.nextDouble() < mutation_rate) {
+            int pos1 = rand.nextInt(arr_chromosome.length);
+            int pos2 = rand.nextInt(arr_chromosome.length);
+            while (pos1 == pos2) {
+                pos2 = rand.nextInt(arr_chromosome.length);
+            }
+            int temp = arr_chromosome[pos1];
+            arr_chromosome[pos1] = arr_chromosome[pos2];
+            arr_chromosome[pos2] = temp;
+        }
+        MagicCube mutated = this.translateArraytoCube(arr_chromosome);
+        return mutated;
+    }
+
+    private int getBestFitness() {
+        int ret = -10000000;
+        for (MagicCube mc : this.populations) {
+            if (mc.getFitness() > ret) {
+                ret = mc.getFitness();
+                this.bestCube.copyFrom(mc);
+            }
+        }
+        return ret;
     }
 
     public int getPopulationSize() {
@@ -45,14 +200,6 @@ public class GeneticAlgorithm implements IAlgorithm {
 
     public void setPopulationSize(int population_size) {
         this.population_size = population_size;
-    }
-
-    public double getMutationRate() {
-        return mutation_rate;
-    }
-
-    public void setMutationRate(double mutation_rate) {
-        this.mutation_rate = mutation_rate;
     }
 
     public int getMaxGenerations() {
