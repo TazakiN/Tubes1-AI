@@ -6,7 +6,7 @@ import java.util.Random;
 public class SimulatedAnnealing implements IAlgorithm {
     private double initial_temperature;     // set to 100
     private double cooling_rate;            // set to 0.00001
-    private int counter = 0;
+    // private int counter = 0;
 
     public SimulatedAnnealing(double initial_temperature, double cooling_rate) {
         this.initial_temperature = initial_temperature;
@@ -37,47 +37,40 @@ public class SimulatedAnnealing implements IAlgorithm {
     public MagicCube getSolvedCube(MagicCube cube) {
         // TODO: Fix this logic algorithm to matches the best technique to solve MagicCube (Liat catetan ucup)
         double temperature = initial_temperature;
-        MagicCube currentSolution = new MagicCube(cube);
-        MagicCube bestSolution = new MagicCube(cube);
+        MagicCube currentCube = new MagicCube(cube);
+        MagicCube bestCube = new MagicCube(cube);
 
         // int movedWorseNeigbourCount = 0;
 
         while (temperature > 1) {
-            MagicCube neighbour = getRandomNeighbour(currentSolution);
+            MagicCube neighbour = getRandomNeighbour(currentCube);
 
-            int currentFitness = currentSolution.getFitness();
+            int currentFitness = currentCube.getFitness();
             int neighbourFitness = neighbour.getFitness();
 
-            if (acceptanceProbability(currentFitness, neighbourFitness, temperature) > 0.9) {
-                // movedWorseNeigbourCount++;
-                // System.out.println("Neighbour Fitness: " + neighbourFitness);
-                // System.out.println("Current Fitness: " + currentFitness);
-                // System.out.println("Pangkat e: " + (neighbourFitness - currentFitness) / temperature);
-                // System.out.println("Move to worse neighbour with probability: " + acceptanceProbability(currentFitness, neighbourFitness, temperature));
-                currentSolution = new MagicCube(neighbour);
+            if (acceptanceProbability(currentFitness, neighbourFitness, temperature) > 0.95) {
+                if (!(neighbourFitness > currentFitness)) {
+                    // movedWorseNeigbourCount++;
+                }
+                currentCube = new MagicCube(neighbour);
             }
 
-            if (currentSolution.getFitness() > bestSolution.getFitness()) {
-                bestSolution = new MagicCube(currentSolution);
+            if (currentFitness > bestCube.getFitness()) {
+                bestCube = new MagicCube(currentCube);
+                // System.out.println("Best Fitness: " + bestCube.getFitness());
+                // System.out.println("Temperature: " + temperature);
             }
 
             temperature *= 1 - cooling_rate;
         }
 
-        // System.out.println("Moved to worse neighbour: " + movedWorseNeigbourCount + " times\n");
-        // System.out.println("Moved to better neighbour: " + counter + " times\n");
-
-        return bestSolution;
+        return bestCube;
     }
 
     private double acceptanceProbability(int currentFitness, int neighbourFitness, double temperature) {
         if (neighbourFitness > currentFitness) {
-            counter++;
-            // System.out.println("Move to better neighbour");
+            // counter++;
             return 1.0;
-        } else if (neighbourFitness == currentFitness) {
-            // Dont move to neighbour
-            return 0;
         }
         return Math.exp((neighbourFitness - currentFitness) / temperature);
     }
