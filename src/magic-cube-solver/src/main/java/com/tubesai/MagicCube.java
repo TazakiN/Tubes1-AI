@@ -35,7 +35,7 @@ public class MagicCube {
             }
         }
 
-        this.fitness = evaluateObjFunc();
+        this.fitness = evaluateObjFunc2();
     }
 
     /**
@@ -53,7 +53,7 @@ public class MagicCube {
             this.cube = objectMapper.readValue(new File(jsonFilePath), int[][][].class);
             this.size = this.cube.length;
             this.magic_number = 315;
-            this.fitness = evaluateObjFunc();
+            this.fitness = evaluateObjFunc2();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -252,7 +252,7 @@ public class MagicCube {
         cube[el2.getX()][el2.getY()][el2.getZ()] = temp;
 
         // Update fitness after swapping
-        this.fitness = evaluateObjFunc();
+        this.fitness = evaluateObjFunc2();
     }
 
     /**
