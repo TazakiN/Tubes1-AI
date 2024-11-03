@@ -10,6 +10,7 @@ import java.util.Map;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 public class CubeVisualizer {
@@ -33,6 +34,7 @@ public class CubeVisualizer {
     private static JLabel hoveredCellLabel;
     private static ChartPanel chartPanel;
     private static GraphData graphData;
+    private static ChartPanel probabilityChartPanel;
 
     /**
      * Visualizes the given MagicCube in a graphical user interface.
@@ -83,12 +85,23 @@ public class CubeVisualizer {
             cubePanel.add(layerPanel);
         }
 
-        chartPanel = new ChartPanel(null);
-        chartPanel.setPreferredSize(new Dimension(800, 400));
+        JPanel chartsPanel = new JPanel(new GridLayout(1, 2));
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, chartPanel);
-        splitPane.setResizeWeight(0.7);
-        mainPanel.add(splitPane, BorderLayout.CENTER);
+        chartPanel = new ChartPanel(null);
+        chartPanel.setPreferredSize(new Dimension(400, 400));
+
+        probabilityChartPanel = new ChartPanel(null);
+        probabilityChartPanel.setPreferredSize(new Dimension(400, 400));
+
+        chartsPanel.add(chartPanel);
+        chartsPanel.add(probabilityChartPanel);
+
+        JSplitPane mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        mainSplitPane.setTopComponent(scrollPane);
+        mainSplitPane.setBottomComponent(chartsPanel); // Use chartsPanel instead of just chartPanel
+        mainSplitPane.setResizeWeight(0.6);
+
+        mainPanel.add(mainSplitPane, BorderLayout.CENTER);
 
         JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         summaryLabels = new JLabel[highlightColors.length];
@@ -103,7 +116,7 @@ public class CubeVisualizer {
 
         CubeVisualizer.graphData = graphData;
 
-        updateChart();
+        updateCharts();
 
         frame.setVisible(true);
     }
@@ -148,11 +161,11 @@ public class CubeVisualizer {
 
         chartPanel.setChart(chart);
 
-        updateChart();
+        updateCharts();
     }
 
     public static GraphData createDummyGraphData() {
-        GraphData dummyData = new GraphData();
+        GraphData dummyData = new GraphData(true);
         for (int iter = 0; iter < 50; iter++) {
             for (int i = 0; i < 5; i++) {
                 int objFuncValue = (int) (Math.random() * 100) + iter * 10;
@@ -163,8 +176,12 @@ public class CubeVisualizer {
         return dummyData;
     }
 
-    private static void updateChart() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    private static void updateCharts() {
+        if (graphData == null) {
+            return;
+        }
+        DefaultCategoryDataset objFuncDataset = new DefaultCategoryDataset();
+        DefaultCategoryDataset probDataset = new DefaultCategoryDataset();
 
         Map<Integer, GraphData.IterationStats> allData = graphData.getAllData();
         for (Map.Entry<Integer, GraphData.IterationStats> entry : allData.entrySet()) {
@@ -173,17 +190,43 @@ public class CubeVisualizer {
             double avgValue = stats.getAverage();
             int maxValue = stats.getMax();
 
-            dataset.addValue(avgValue, "Average ObjFunc", String.valueOf(iteration + 1));
-            dataset.addValue(maxValue, "Max ObjFunc", String.valueOf(iteration + 1));
+            objFuncDataset.addValue(avgValue, "Average ObjFunc", String.valueOf(iteration + 1));
+            objFuncDataset.addValue(maxValue, "Max ObjFunc", String.valueOf(iteration + 1));
+
+            if (graphData.isSimulatedAnnealing()) {
+                double avgTemp = stats.getAverageTemperature();
+                // Calculate acceptance probability based on temperature
+                double probability = Math.exp(-Math.abs(maxValue - avgValue) / avgTemp);
+                probDataset.addValue(probability, "Acceptance Probability", String.valueOf(iteration + 1));
+            }
+
+            JFreeChart objFuncChart = ChartFactory.createLineChart(
+                    "Objective Function Values Over Iterations",
+                    "Iteration",
+                    "Objective Function Value",
+                    objFuncDataset,
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    false);
+            chartPanel.setChart(objFuncChart);
+
+            if (graphData.isSimulatedAnnealing() && probDataset.getRowCount() > 0) {
+                JFreeChart probChart = ChartFactory.createLineChart(
+                        "Acceptance Probability Over Iterations",
+                        "Iteration",
+                        "Probability",
+                        probDataset,
+                        PlotOrientation.VERTICAL,
+                        true,
+                        true,
+                        false);
+                probabilityChartPanel.setChart(probChart);
+                probabilityChartPanel.setVisible(true);
+            } else {
+                probabilityChartPanel.setVisible(false);
+            }
         }
-
-        JFreeChart chart = ChartFactory.createLineChart(
-                "Objective Function Values Over Iterations",
-                "Iteration",
-                "Objective Function Value",
-                dataset);
-
-        chartPanel.setChart(chart);
     }
 
     /**
