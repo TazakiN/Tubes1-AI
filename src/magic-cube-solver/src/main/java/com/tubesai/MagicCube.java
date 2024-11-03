@@ -12,6 +12,7 @@ public class MagicCube {
     private int[][][] cube;
     private int magic_number;
     private int fitness; // int or float, decide later
+    public String sequence = "";
 
     /**
      * Constructs a MagicCube object with the specified size.
@@ -25,7 +26,16 @@ public class MagicCube {
         this.cube = new int[size][size][size];
         this.magic_number = 315;
         initializeCube();
-        this.fitness = evaluateObjFunc();
+
+        for(int i = 0 ; i < 5 ; i++){
+            for(int j = 0 ; j < 5 ; j++){
+                for(int k = 0 ; k < 5 ; k++){
+                    sequence += "-" + cube[i][j][k];
+                }
+            }
+        }
+
+        this.fitness = evaluateObjFunc2();
     }
 
     /**
@@ -42,8 +52,8 @@ public class MagicCube {
             ObjectMapper objectMapper = new ObjectMapper();
             this.cube = objectMapper.readValue(new File(jsonFilePath), int[][][].class);
             this.size = this.cube.length;
-            this.magic_number = 315; // Sesuaikan nilai magic_number jika diperlukan
-            this.fitness = evaluateObjFunc();
+            this.magic_number = 315;
+            this.fitness = evaluateObjFunc2();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,8 +66,18 @@ public class MagicCube {
      * @param cube the MagicCube object to be copied
      */
     public MagicCube(MagicCube cube) {
+        
         this.size = cube.getSize();
-        this.cube = cube.getCube();
+        this.cube = new int[size][size][size];
+        
+        for(int i = 0 ; i < size ; i++){
+            for(int j = 0 ; j < size ; j++){
+                for(int k = 0 ; k < size ; k++){
+                    this.cube[i][j][k] = cube.getCubeElement(new Position(i, j, k));
+                }
+            }
+        }
+
         this.magic_number = cube.getMagicNumber();
         this.fitness = cube.getFitness();
     }
@@ -162,6 +182,31 @@ public class MagicCube {
      * @return The total number of valid sums in the magic cube.
      */
     public int evaluateObjFunc() {
+        int total = 0;
+
+        // Periksa setiap baris, kolom, dan tiang pada setiap lapisan
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                total += Math.pow(sumRow(i, j) - magic_number, 2);
+                total += Math.pow(sumColumn(i, j) - magic_number, 2);
+                total += Math.pow(sumTower(i, j) - magic_number, 2);
+            }
+        }
+
+        // Periksa semua diagonal ruang
+        total += Math.pow(sumSpaceDiagonal1() - magic_number, 2);
+        total += Math.pow(sumSpaceDiagonal2(), 2);
+
+        // Periksa semua diagonal bidang (9 bidang)
+        for (int i = 0; i < size; i++) {
+            total += Math.pow(sumPlaneDiagonal1(i) - magic_number, 2);
+            total += Math.pow(sumPlaneDiagonal2(i) - magic_number, 2);
+        }
+
+        return -total;
+    }
+
+    public int evaluateObjFunc2() {
         int totalValid = 0;
 
         // Periksa setiap baris, kolom, dan tiang pada setiap lapisan
@@ -207,7 +252,7 @@ public class MagicCube {
         cube[el2.getX()][el2.getY()][el2.getZ()] = temp;
 
         // Update fitness after swapping
-        this.fitness = evaluateObjFunc();
+        this.fitness = evaluateObjFunc2();
     }
 
     /**
@@ -241,7 +286,8 @@ public class MagicCube {
      *
      * @param el1 The starting position.
      * @param el2 The target position.
-     * @return A new MagicCube instance that represents the neighboring state after the move.
+     * @return A new MagicCube instance that represents the neighboring state after
+     *         the move.
      */
     public MagicCube getNeighbour(Position el1, Position el2) {
         MagicCube neighbour = new MagicCube(this);
@@ -262,7 +308,7 @@ public class MagicCube {
             System.out.println("Layer " + (i + 1) + ":");
             for (int j = 0; j < size; j++) {
                 for (int k = 0; k < size; k++) {
-                    System.out.print(this.cube[i][j][k] + " ");
+                    System.out.print(this.cube[i][j][k] + "\t");
                 }
                 System.out.println();
             }

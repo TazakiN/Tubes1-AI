@@ -4,39 +4,57 @@ package com.tubesai;
 
 public class Main {
     public static void main(String[] args) {
-        // This just a test to see if the SimulatedAnnealing works
-        // MagicCube cube = new MagicCube(5);
+        Menu menu = new Menu();
 
-        // SimulatedAnnealing solver = new SimulatedAnnealing(100, 1);
-        // MagicCube solvedCube = solver.getSolvedCube(cube);
+        MagicCube cube = new MagicCube(5);
 
-        // System.out.println("Starter Cube:");
-        // System.out.println("Fitness: " + cube.getFitness());
-        // cube.printCube();
-        // System.out.println();
-        // System.out.println("Solved Cube:");
-        // System.out.println("Fitness: " + solvedCube.getFitness());
-        // solvedCube.printCube();
+        boolean isInputFromJSON = menu.isInputFromJSON();
+        if (isInputFromJSON) {
+            // TODO: handle input from JSON
+        }
 
-        // This is just a test to see if the GeneticAlgorithm Works
-        MagicCube mc = new MagicCube(5);
+        IAlgorithm solver;
+        int algoChoice = menu.chooseAlgoMenu();
+        // TODO: handle algorithm choice
+        if (algoChoice == 1) {
+            solver = new HillClimbingSideMove(10);      // Change max_side_moves as needed
+        } else if (algoChoice == 2) {
+            solver = new SimulatedAnnealing(10, 0.000001);
+        } else if (algoChoice == 3) {
+            solver = new GeneticAlgorithm(1, 1,1);
+        } else {
+            System.out.println("Error in algorithm choice.");
+            return;
+        }
 
-        GeneticAlgorithm ga = new GeneticAlgorithm(4, 3, 0.1);
-        MagicCube solved_mc = ga.getSolvedCube(mc);
-
-        System.out.println("Initial Cube: ");
-        mc.printCube();
-        System.out.println("Fitness: " + mc.getFitness());
+        // Solve the cube
+        MagicCube solvedCube = solver.getSolvedCube(cube);
+        System.out.println("Fitness before solving: " + cube.getFitness());
+        System.out.println("Fitness after solving: " + solvedCube.getFitness());
         System.out.println();
-        System.out.println("Solved Cube:");
-        solved_mc.printCube();
-        System.out.println("Fitness: " + solved_mc.getFitness());
 
-        // This is just a test to see if the Visualize MagicCube works
-        // MagicCube magicCube = new MagicCube(5);
-        // int ans = magicCube.evaluateObjFunc();
-        // System.out.println(ans);
-
-        // CubeVisualizer.visualize(magicCube);
+        // Visualize the solved cube
+        boolean visualize = menu.isVisualize();
+        if (visualize) {
+            CubeVisualizer.visualize(solvedCube);
+        }
     }
+    
+    // public static void main(String[] args) {
+    //     // This just a test to see if the SimulatedAnnealing works
+    //     MagicCube cube = new MagicCube(5);
+
+    //     SimulatedAnnealing solver = new SimulatedAnnealing(10, 0.000001);
+        
+    //     System.out.println("Starter Cube:");
+    //     System.out.println("Fitness: " + cube.getFitness());
+    //     // cube.printCube();
+    //     System.out.println();
+    //     MagicCube solvedCube = solver.getSolvedCube(cube);
+    //     System.out.println("Solved Fitness (re-evaluate): " + solvedCube.evaluateObjFunc2());
+    //     System.out.println("Solved Fitness (fitness attribute): " + solvedCube.getFitness());
+    //     System.out.println();
+
+    //     CubeVisualizer.visualize(solvedCube);
+    // }
 }
