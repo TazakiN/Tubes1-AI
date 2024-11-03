@@ -5,19 +5,34 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 public class CubeVisualizer {
     private static JLabel[][][] labelGrid;
     private static int size;
     private static int[][][] cubeValues;
     private static Color[] highlightColors = {
-            Color.YELLOW, Color.CYAN, Color.MAGENTA,
-            Color.ORANGE, Color.PINK, Color.GREEN,
-            Color.BLUE, Color.RED, Color.LIGHT_GRAY,
-            Color.DARK_GRAY, Color.BLACK, Color.WHITE
+            Color.YELLOW,
+            Color.CYAN,
+            Color.PINK,
+            Color.ORANGE,
+            new Color(255, 182, 193), // Light Pink
+            new Color(173, 216, 230), // Light Blue
+            new Color(144, 238, 144), // Light Green
+            new Color(255, 228, 181), // Moccasin
+            new Color(255, 250, 205), // Lemon Chiffon
+            new Color(255, 239, 213), // Papaya Whip
+            Color.WHITE
     };
     private static JLabel[] summaryLabels;
     private static JLabel hoveredCellLabel;
+    private static ChartPanel chartPanel;
+    private static GraphData graphData;
 
     /**
      * Visualizes the given MagicCube in a graphical user interface.
@@ -28,41 +43,30 @@ public class CubeVisualizer {
      *
      * @param magicCube the MagicCube object to be visualized
      */
-    public static void visualize(MagicCube magicCube) {
+    public static void visualize(MagicCube magicCube, GraphData graphData) {
         size = magicCube.getSize();
         cubeValues = magicCube.getCube();
         labelGrid = new JLabel[size][size][size];
 
         JFrame frame = new JFrame("Visualisasi Magic Cube");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(800, 800);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         frame.add(mainPanel);
 
-        JPanel cubePanel = new JPanel();
-        int gridRows = (int) Math.ceil(Math.sqrt(size));
-        int gridCols = (int) Math.ceil((double) size / gridRows);
-        cubePanel.setLayout(new GridLayout(gridRows, gridCols));
-        mainPanel.add(cubePanel, BorderLayout.CENTER);
+        hoveredCellLabel = new JLabel("Hover mouse over a cell to highlight related cells.", SwingConstants.CENTER);
+        hoveredCellLabel.setPreferredSize(new Dimension(400, 30));
+        mainPanel.add(hoveredCellLabel, BorderLayout.NORTH);
 
-        JPanel summaryPanel = new JPanel();
-        summaryPanel.setLayout(new GridLayout(highlightColors.length, 1));
-        mainPanel.add(summaryPanel, BorderLayout.EAST);
-
-        summaryLabels = new JLabel[highlightColors.length];
-        for (int i = 0; i < highlightColors.length; i++) {
-            summaryLabels[i] = new JLabel("Jumlah angka warna " + (i + 1) + ": 0", SwingConstants.CENTER);
-            summaryLabels[i].setOpaque(true);
-            summaryLabels[i].setBackground(highlightColors[i]);
-            summaryPanel.add(summaryLabels[i]);
-        }
+        JPanel cubePanel = new JPanel(new GridLayout(1, size));
+        JPanel cubePanel2 = new JPanel(new BorderLayout(2, 1));
+        cubePanel2.add(cubePanel);
+        JScrollPane scrollPane = new JScrollPane(cubePanel2);
 
         for (int z = 0; z < size; z++) {
-            JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(size, size));
-            panel.setBorder(BorderFactory.createTitledBorder("Layer: " + (z + 1)));
-
+            JPanel layerPanel = new JPanel(new GridLayout(size, size));
+            layerPanel.setBorder(BorderFactory.createTitledBorder("Layer " + (z + 1)));
             for (int y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
                     int value = cubeValues[z][y][x];
@@ -73,30 +77,119 @@ public class CubeVisualizer {
 
                     final int fx = x, fy = y, fz = z;
                     label.addMouseListener(new CubeMouseListener(fx, fy, fz));
-                    panel.add(label);
+                    layerPanel.add(label);
                 }
             }
-
-            cubePanel.add(panel);
+            cubePanel.add(layerPanel);
         }
 
-        JPanel labelHoveredPanel = new JPanel();
-        labelHoveredPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        labelHoveredPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        chartPanel = new ChartPanel(null);
+        chartPanel.setPreferredSize(new Dimension(800, 400));
 
-        hoveredCellLabel = new JLabel("Hover mouse over a cell to highlight related cells.", SwingConstants.CENTER);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane, chartPanel);
+        splitPane.setResizeWeight(0.7);
+        mainPanel.add(splitPane, BorderLayout.CENTER);
 
-        labelHoveredPanel.add(hoveredCellLabel);
+        JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        summaryLabels = new JLabel[highlightColors.length];
+        for (int i = 0; i < highlightColors.length; i++) {
+            summaryLabels[i] = new JLabel("Jumlah : 0", SwingConstants.CENTER);
+            summaryLabels[i].setOpaque(true);
+            summaryLabels[i].setBackground(highlightColors[i]);
+            summaryLabels[i].setPreferredSize(new Dimension(100, 30));
+            summaryPanel.add(summaryLabels[i]);
+        }
+        cubePanel2.add(summaryPanel, BorderLayout.SOUTH);
 
-        cubePanel.add(labelHoveredPanel, BorderLayout.SOUTH);
+        CubeVisualizer.graphData = graphData;
+
+        updateChart();
 
         frame.setVisible(true);
     }
 
     /**
+     * Updates the summary labels with the sum of cube values for each highlight
+     * color and updates the chart.
+     */
+    private static void updateSummaryLabels() {
+        int[] colorSums = new int[highlightColors.length];
+
+        for (int z = 0; z < size; z++) {
+            for (int y = 0; y < size; y++) {
+                for (int x = 0; x < size; x++) {
+                    Color bgColor = labelGrid[z][y][x].getBackground();
+                    if (bgColor != null) {
+                        for (int i = 0; i < highlightColors.length; i++) {
+                            if (bgColor.equals(highlightColors[i])) {
+                                colorSums[i] += cubeValues[z][y][x];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < highlightColors.length; i++) {
+            summaryLabels[i].setText("Jumlah : " + colorSums[i]);
+        }
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for (int i = 0; i < colorSums.length; i++) {
+            dataset.addValue(colorSums[i], "Jumlah", "Warna " + (i + 1));
+        }
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Chart Avg & Max ObjFunc Values Over Iterations",
+                "Iteration",
+                "Objective Function Value",
+                dataset);
+
+        chartPanel.setChart(chart);
+
+        updateChart();
+    }
+
+    public static GraphData createDummyGraphData() {
+        GraphData dummyData = new GraphData();
+        for (int iter = 0; iter < 50; iter++) {
+            for (int i = 0; i < 5; i++) {
+                int objFuncValue = (int) (Math.random() * 100) + iter * 10;
+                dummyData.addData(objFuncValue);
+            }
+            dummyData.finishIteration();
+        }
+        return dummyData;
+    }
+
+    private static void updateChart() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        Map<Integer, GraphData.IterationStats> allData = graphData.getAllData();
+        for (Map.Entry<Integer, GraphData.IterationStats> entry : allData.entrySet()) {
+            int iteration = entry.getKey();
+            GraphData.IterationStats stats = entry.getValue();
+            double avgValue = stats.getAverage();
+            int maxValue = stats.getMax();
+
+            dataset.addValue(avgValue, "Average ObjFunc", String.valueOf(iteration + 1));
+            dataset.addValue(maxValue, "Max ObjFunc", String.valueOf(iteration + 1));
+        }
+
+        JFreeChart chart = ChartFactory.createLineChart(
+                "Objective Function Values Over Iterations",
+                "Iteration",
+                "Objective Function Value",
+                dataset);
+
+        chartPanel.setChart(chart);
+    }
+
+    /**
      * CubeMouseListener is a MouseAdapter that highlights related cells in a 3D
-     * grid
-     * when the mouse enters or exits a cell. It highlights cells in the same row,
+     * grid when the mouse enters or exits a cell. It highlights cells in the same
+     * row,
      * column, and pillar, as well as various diagonals within the 3D space.
      */
     private static class CubeMouseListener extends MouseAdapter {
@@ -112,7 +205,6 @@ public class CubeVisualizer {
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            // Update position text
             hoveredCellLabel.setText(String.format("Position: x = %d, y = %d, z = %d", z + 1, y + 1, x + 1));
             highlightRelatedCells();
             updateSummaryLabels();
@@ -120,7 +212,6 @@ public class CubeVisualizer {
 
         @Override
         public void mouseExited(MouseEvent e) {
-            // Reset text
             hoveredCellLabel.setText("Hover mouse over a cell to highlight related cells.");
             resetHighlightedCells();
             updateSummaryLabels();
@@ -262,43 +353,6 @@ public class CubeVisualizer {
             }
             highlightedLabels.clear();
             colorIndices.clear();
-        }
-    }
-
-    /**
-     * Updates the summary labels with the sum of cube values for each highlight
-     * color.
-     * 
-     * This method iterates through a 3D grid of labels, checks the background color
-     * of each label,
-     * and sums the corresponding cube values for each highlight color. The results
-     * are then used
-     * to update the text of the summary labels.
-     * 
-     * The summary labels display the total sum of cube values for each highlight
-     * color.
-     */
-    private static void updateSummaryLabels() {
-        int[] colorSums = new int[highlightColors.length];
-
-        for (int z = 0; z < size; z++) {
-            for (int y = 0; y < size; y++) {
-                for (int x = 0; x < size; x++) {
-                    Color bgColor = labelGrid[z][y][x].getBackground();
-                    if (bgColor != null) {
-                        for (int i = 0; i < highlightColors.length; i++) {
-                            if (highlightColors[i].equals(bgColor)) {
-                                colorSums[i] += cubeValues[z][y][x];
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for (int i = 0; i < highlightColors.length; i++) {
-            summaryLabels[i].setText("Jumlah angka warna " + (i + 1) + ": " + colorSums[i]);
         }
     }
 }
