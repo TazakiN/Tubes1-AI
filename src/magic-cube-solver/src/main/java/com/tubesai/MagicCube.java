@@ -35,7 +35,7 @@ public class MagicCube {
             }
         }
 
-        this.fitness = evaluateObjFunc2();
+        this.fitness = evaluateObjFunc();
     }
 
     /**
@@ -355,6 +355,10 @@ public class MagicCube {
      */
     public int getCubeElement(Position pos) {
         return cube[pos.getX()][pos.getY()][pos.getZ()];
+    }
+
+    public void setCubeElement(Position pos, int el) {
+        this.cube[pos.getX()][pos.getY()][pos.getZ()] = el;
     }
 
     public int getSize() {
