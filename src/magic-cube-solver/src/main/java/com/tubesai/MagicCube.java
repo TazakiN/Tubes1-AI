@@ -35,7 +35,7 @@ public class MagicCube {
             }
         }
 
-        this.fitness = evaluateObjFunc2();
+        this.fitness = evaluateObjFunc();
     }
 
     /**

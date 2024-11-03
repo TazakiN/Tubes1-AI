@@ -22,7 +22,7 @@ public class GeneticAlgorithm implements IAlgorithm {
     public MagicCube getSolvedCube(MagicCube cube) {
         // Find best solution from population
         // TODO: Implement Genetic Algorithm
-        int i=1;
+        int i=0;
         int best_eval;
         do {
             List<MagicCube> new_mcs = new ArrayList<>();
@@ -39,7 +39,8 @@ public class GeneticAlgorithm implements IAlgorithm {
             i++;
             best_eval = this.getBestFitness();
             this.mutation_rate -= 0.005;
-        } while (i < this.max_generations && best_eval > -100);
+        } while (i < this.max_generations && best_eval < -100000);
+        System.out.println(i);
         return this.bestCube;
     }
 
@@ -59,14 +60,12 @@ public class GeneticAlgorithm implements IAlgorithm {
             sum += mc.getFitness();
         }
         double select = rand.nextDouble();
-        select *= 100;
-        System.out.println(select);
+        select *= sum;
         double temp = 0.0;
-        System.out.println("Test");
         for (MagicCube mc : this.populations) {
-            temp += (mc.getFitness()*100/sum);
-            System.out.println(temp);
-            if (select <= temp) {
+            temp += mc.getFitness();
+            // System.out.println(temp);
+            if (select >= temp) {
                 return mc;
             }
         }
