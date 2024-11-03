@@ -18,17 +18,19 @@ public class CubeVisualizer {
     private static int size;
     private static int[][][] cubeValues;
     private static Color[] highlightColors = {
-            Color.YELLOW,
-            Color.CYAN,
-            Color.PINK,
-            Color.ORANGE,
-            new Color(255, 182, 193), // Light Pink
-            new Color(173, 216, 230), // Light Blue
-            new Color(144, 238, 144), // Light Green
-            new Color(255, 228, 181), // Moccasin
-            new Color(255, 250, 205), // Lemon Chiffon
-            new Color(255, 239, 213), // Papaya Whip
-            Color.WHITE
+            new Color(255, 200, 200),
+            new Color(200, 255, 200),
+            new Color(200, 200, 255),
+            new Color(255, 230, 180),
+            new Color(255, 255, 180),
+            new Color(255, 180, 255),
+            new Color(230, 200, 255),
+            new Color(180, 255, 255),
+            new Color(220, 220, 255),
+            new Color(240, 255, 180),
+            new Color(255, 220, 220),
+            new Color(220, 255, 220),
+            new Color(180, 230, 255)
     };
     private static JLabel[] summaryLabels;
     private static JLabel hoveredCellLabel;
