@@ -27,6 +27,13 @@ public class Menu {
         return false;
     }
 
+    public String getJSONFilename() {
+        System.out.print("Enter the JSON filename: ");
+        String filename = scanner.nextLine().trim();
+        System.out.println();
+        return filename;
+    }
+
     /**
      * Displays a menu for selecting an algorithm to solve the cube.
      * 
