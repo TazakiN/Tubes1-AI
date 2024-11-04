@@ -83,4 +83,38 @@ public class HillClimbingSideMove implements IAlgorithm {
     public GraphData getGraphData() {
         return graphData;
     }
+
+    // public static void main(String args[]){
+    //     MagicCube obj = new MagicCube(5);
+        
+    //     HillClimbingSideMove hill100 = new HillClimbingSideMove(100);
+    //     HillClimbingSideMove hill500 = new HillClimbingSideMove(500);
+    //     HillClimbingSideMove hill1000 = new HillClimbingSideMove(1000);
+    //     HillClimbingSideMove hill5000 = new HillClimbingSideMove(5000);
+
+    //     long start = System.currentTimeMillis();
+    //     MagicCube solved = hill100.getSolvedCube(obj);
+    //     long end = System.currentTimeMillis();
+    //     long res = end-start;
+    //     System.out.println("100: "+ res + " " + solved.getFitness());
+
+
+    //     start = System.currentTimeMillis();
+    //     solved = hill500.getSolvedCube(obj);
+    //     end = System.currentTimeMillis();
+    //     res = end-start;
+    //     System.out.println("500: "+ res + " " + solved.getFitness());
+
+    //     start = System.currentTimeMillis();
+    //     solved = hill1000.getSolvedCube(obj);
+    //     end = System.currentTimeMillis();
+    //     res = end-start;
+    //     System.out.println("1000: "+ res + " " + solved.getFitness());
+
+    //     start = System.currentTimeMillis();
+    //     solved = hill5000.getSolvedCube(obj);
+    //     end = System.currentTimeMillis();
+    //     res = end-start;
+    //     System.out.println("5000: "+ res + " " + solved.getFitness());
+    // }
 }
