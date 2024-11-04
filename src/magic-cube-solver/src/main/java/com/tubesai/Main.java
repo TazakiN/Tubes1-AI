@@ -39,12 +39,11 @@ public class Main {
         System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
         System.out.println();
 
-        // Visualize the solved cube
-        boolean visualize = menu.isVisualize();
-        if (visualize) {
-            CubeVisualizer.visualize(solvedCube, graphData);
-        }
+        // Visualize cube
+        menu.isVisualize(cube, solvedCube, graphData);
 
         menu.closeScanner();
+
+        System.out.println("Program has ended.");
     }
 }
