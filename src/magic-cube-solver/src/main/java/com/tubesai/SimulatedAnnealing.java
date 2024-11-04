@@ -62,7 +62,7 @@ public class SimulatedAnnealing implements IAlgorithm {
 
         probabilityHistory.clear();
 
-        int movedWorseNeigbourCount = 0;
+        int localOptimumFrequency = 0;
 
         while (temperature > 1) {
             iteration++;
@@ -75,11 +75,13 @@ public class SimulatedAnnealing implements IAlgorithm {
 
             graphData.addData(neighbourFitness, temperature);
             // probabilityHistory.add(accProbability);
+            
+            // Hitung frekuensi stuck local optimum
+            if (!(neighbourFitness > currentFitness)) {
+                localOptimumFrequency++;
+            }
 
             if (accProbability > 0.95) {
-                if (!(neighbourFitness > currentFitness)) {
-                    movedWorseNeigbourCount++;
-                }
                 graphData.finishIteration();
                 currentCube = new MagicCube(neighbour);
             }
@@ -93,7 +95,7 @@ public class SimulatedAnnealing implements IAlgorithm {
         }
 
         System.out.println("Number of iterations: " + iteration);
-        System.out.println("Number of times moved to worse neighbour: " + movedWorseNeigbourCount + " (frekuensi stuck local)");
+        System.out.println("Local Optimum Stuck Frequency: " + localOptimumFrequency);
         return bestCube;
     }
 
