@@ -113,9 +113,7 @@ public class GraphData {
         private double sum;
         private int min;
         private int max;
-        private final ArrayList<Integer> values;
         private double temperatureSum;
-        private final ArrayList<Double> temperatures;
         private final boolean trackTemperature;
 
         public IterationStats(boolean trackTemperature) {
@@ -123,9 +121,7 @@ public class GraphData {
             this.sum = 0;
             this.min = Integer.MAX_VALUE;
             this.max = Integer.MIN_VALUE;
-            this.values = new ArrayList<>();
             this.temperatureSum = 0;
-            this.temperatures = new ArrayList<>();
             this.trackTemperature = trackTemperature;
         }
 
@@ -134,11 +130,9 @@ public class GraphData {
             sum += value;
             min = Math.min(min, value);
             max = Math.max(max, value);
-            values.add(value);
 
             if (trackTemperature) {
                 temperatureSum += temperature;
-                temperatures.add(temperature);
             }
         }
 
@@ -158,13 +152,7 @@ public class GraphData {
             return max;
         }
 
-        public ArrayList<Integer> getValues() {
-            return new ArrayList<>(values);
-        }
-
-        public ArrayList<Double> getTemperatures() {
-            return trackTemperature ? new ArrayList<>(temperatures) : new ArrayList<>();
-        }
+        // Removed getValues() and getTemperatures() methods
     }
 
     public static GraphData createDummyData(boolean isSimulatedAnnealing) {
