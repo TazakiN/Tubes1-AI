@@ -39,6 +39,18 @@ public class MagicCube {
         this.fitness = evaluateObjFunc();
     }
 
+    private void updateSequence(){
+        sequence = "";
+        
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                for (int k = 0; k < 5; k++) {
+                    sequence += "-" + cube[i][j][k];
+                }
+            }
+        }
+    }
+
     /**
      * Constructs a MagicCube object by loading its state from a JSON file.
      *
@@ -84,6 +96,7 @@ public class MagicCube {
 
         this.magic_number = cube.getMagicNumber();
         this.fitness = cube.getFitness();
+        this.sequence = cube.sequence;
     }
 
     /**
@@ -257,6 +270,7 @@ public class MagicCube {
 
         // Update fitness after swapping
         this.fitness = evaluateObjFunc2();
+        updateSequence();
     }
 
     /**

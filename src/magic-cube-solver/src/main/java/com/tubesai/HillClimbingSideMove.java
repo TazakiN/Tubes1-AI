@@ -21,27 +21,31 @@ public class HillClimbingSideMove implements IAlgorithm {
         cubemap.put(cube.sequence, true);
 
         int side_moves = 0; // Tambahkan counter untuk side moves
+        int count = 0;
 
         while (true) {
             graphData.finishIteration();
             MagicCube next = new MagicCube(getNextNeighbour(prev, cubemap));
+            // System.out.println(side_moves);
             graphData.addData(next.evaluateObjFunc());
-
+            
             if (next.getFitness() > prev.getFitness()) {
-                side_moves = 0; // Reset jika ada peningkatan fitness
-            } else if (next.getFitness() == prev.getFitness()) {
-                side_moves++; // Increment jika fitness sama
-                if (side_moves >= max_side_moves) {
-                    return prev; // Hentikan pencarian
-                }
-            } else {
-                return prev; // Hentikan jika fitness menurun
+                    side_moves = 0; // Reset jika ada peningkatan fitness
+                } else if (next.getFitness() == prev.getFitness()) {
+                        side_moves++; // Increment jika fitness sama
+                        if (side_moves >= max_side_moves) {
+                                System.out.println(count);
+                                return prev; // Hentikan pencarian
+                            }
             }
 
             if (next.sequence.equals(prev.sequence)) {
+                System.out.println(count);
+                System.out.println("Tidak ada yang mengalahkan saya");
                 return next;
             }
-
+                
+            count++;
             cubemap.put(next.sequence, true);
             prev = new MagicCube(next);
         }
@@ -58,13 +62,13 @@ public class HillClimbingSideMove implements IAlgorithm {
                     for (int z = i; z < dimension; z++) {
                         for (int x = (z == i) ? j : 0; x < dimension; x++) {
                             for (int c = (z == i && x == j) ? k + 1 : 0; c < dimension; c++) {
-
                                 MagicCube tempCube = new MagicCube(cube);
                                 tempCube.moveToNeighbour(new Position(i, j, k), new Position(z, x, c));
-                                graphData.addData(tempCube.evaluateObjFunc());
-                                if (tempCube.evaluateObjFunc() >= result.evaluateObjFunc()
-                                        && !cubemap.containsKey(tempCube.sequence)) {
 
+                                graphData.addData(tempCube.getFitness());
+                                
+                                if (tempCube.getFitness() >= result.getFitness()
+                                        && !cubemap.containsKey(tempCube.sequence)) {
                                     result = new MagicCube(tempCube);
                                 }
                             }
@@ -74,7 +78,6 @@ public class HillClimbingSideMove implements IAlgorithm {
                 }
             }
         }
-
         return result;
     }
 
@@ -83,7 +86,7 @@ public class HillClimbingSideMove implements IAlgorithm {
     }
 
     public static void main(String args[]) {
-        HillClimbingSideMove a = new HillClimbingSideMove(0);
+        HillClimbingSideMove a = new HillClimbingSideMove(5000);
         MagicCube test = new MagicCube(5);
         // System.out.println(test.evaluateObjFunc2());
 
@@ -95,11 +98,11 @@ public class HillClimbingSideMove implements IAlgorithm {
 
         MagicCube apa = new MagicCube(a.getSolvedCube(test));
 
-        test.printCube();
-        apa.printCube();
+        // test.printCube();
+        // apa.printCube();
 
-        System.out.println(test.evaluateObjFunc());
-        System.out.println(apa.evaluateObjFunc());
+        System.out.println(test.getFitness());
+        System.out.println(apa.getFitness());
     }
 
     @Override
