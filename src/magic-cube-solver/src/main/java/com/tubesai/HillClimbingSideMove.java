@@ -20,8 +20,7 @@ public class HillClimbingSideMove implements IAlgorithm {
         MagicCube prev = new MagicCube(cube);
         cubemap.put(cube.sequence, true);
 
-        int side_moves = 0; // Tambahkan counter untuk side moves
-        int count = 0;
+        int side_moves = 0; // Counter untuk menghitung sideways moves
 
         while (true) {
             graphData.finishIteration();
@@ -41,7 +40,6 @@ public class HillClimbingSideMove implements IAlgorithm {
                 return next;
             }
                 
-            count++;
             cubemap.put(next.sequence, true);
             prev = new MagicCube(next);
         }
