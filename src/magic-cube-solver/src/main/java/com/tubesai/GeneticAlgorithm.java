@@ -16,13 +16,13 @@ public class GeneticAlgorithm implements IAlgorithm {
         this.mutation_rate = mutation_rate;
         this.bestCube = new MagicCube(5);
         this.populations = new ArrayList<>();
-        this.generateInitialPopulation();
         this.graphData = new GraphData(false);
     }
 
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
         // Find best solution from population
+        this.generateInitialPopulation(cube);
         this.populations.set(0, cube);
         int i = 0;
         int best_eval;
@@ -42,17 +42,15 @@ public class GeneticAlgorithm implements IAlgorithm {
             i++;
             best_eval = this.getBestFitness();
             graphData.finishIteration();
-            this.mutation_rate -= 0.005;
         } while (i < this.max_generations && best_eval < 90);
         return this.bestCube;
     }
 
-    private void generateInitialPopulation() {
+    private void generateInitialPopulation(MagicCube cube) {
         // Generate random initial population of MagicCubes
         for (int i = 0; i < this.population_size; i++) {
-            MagicCube mc = new MagicCube(5);
-            // mc.printCube();
-            this.populations.add(mc);
+            cube.moveToRandomState();
+            this.populations.add(cube);
         }
     }
 
@@ -193,14 +191,12 @@ public class GeneticAlgorithm implements IAlgorithm {
     }
 
     private int getBestFitness() {
-        int ret = 0;
         for (MagicCube mc : this.populations) {
-            if (mc.getFitness() > ret) {
-                ret = mc.getFitness();
+            if (this.bestCube.getFitness() < mc.getFitness()) {
                 this.bestCube.copyFrom(mc);
             }
         }
-        return ret;
+        return this.bestCube.getFitness();
     }
 
     public int getPopulationSize() {
