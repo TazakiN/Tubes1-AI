@@ -376,7 +376,7 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            // Diagonal ruang 2 (dari (size-1, size-1, 0) ke (0, 0, size-1))
+            // Diagonal ruang 2 (dari (size-1,0,0) ke (0,size-1,size-1))
             if (x + z == size - 1 && y == x) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[size - 1 - i][i][i], highlightColors[colorIndex % highlightColors.length],
@@ -385,7 +385,7 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            // Diagonal ruang 3 (dari (0,size-1,0) ke (size-1,0,size-1))
+            // Diagonal ruang 3 (dari (0, size-1, 0) ke (size-1, 0, size-1))
             if (y + z == size - 1 && x == z) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[i][size - 1 - i][i], highlightColors[colorIndex % highlightColors.length],
@@ -394,7 +394,7 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            // Diagonal ruang 4 (dari (0,0,size-1) ke (size-1,size-1,0))
+            // Diagonal ruang 4 (dari (size-1,0,0) ke (0,size-1,size-1))
             if (x + y == size - 1 && y == z) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[size - 1 - i][size - 1 - i][i],
