@@ -8,6 +8,7 @@ public class GeneticAlgorithm implements IAlgorithm {
     private double mutation_rate;
     private int max_generations;
     private MagicCube bestCube;
+    private GraphData graphData;
 
     public GeneticAlgorithm(int population_size, int max_generations, double mutation_rate) {
         this.population_size = population_size;
@@ -16,28 +17,30 @@ public class GeneticAlgorithm implements IAlgorithm {
         this.bestCube = new MagicCube(5);
         this.populations = new ArrayList<>();
         this.generateInitialPopulation();
+        this.graphData = new GraphData(false);
     }
 
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
         // Find best solution from population
-        // TODO: Implement Genetic Algorithm
-        int i=0;
+        int i = 0;
         int best_eval;
         do {
             List<MagicCube> new_mcs = new ArrayList<>();
-            for (int j=0; j<this.population_size/2; j++) {
+            for (int j = 0; j < this.population_size / 2; j++) {
                 MagicCube cube1 = this.randomMagicCube();
                 MagicCube cube2 = this.randomMagicCube();
                 List<MagicCube> children = this.crossover(cube1, cube2);
                 for (MagicCube child : children) {
                     MagicCube mutated_child = this.mutate(child);
+                    graphData.addData(mutated_child.getFitness());
                     new_mcs.add(mutated_child);
                 }
             }
             this.populations = new_mcs;
             i++;
             best_eval = this.getBestFitness();
+            graphData.finishIteration();
             this.mutation_rate -= 0.005;
         } while (i < this.max_generations && best_eval < -100000);
         System.out.println(i);
@@ -46,7 +49,7 @@ public class GeneticAlgorithm implements IAlgorithm {
 
     private void generateInitialPopulation() {
         // Generate random initial population of MagicCubes
-        for (int i=0; i<this.population_size; i++) {
+        for (int i = 0; i < this.population_size; i++) {
             MagicCube mc = new MagicCube(5);
             // mc.printCube();
             this.populations.add(mc);
@@ -75,11 +78,11 @@ public class GeneticAlgorithm implements IAlgorithm {
     private int[] translateCubetoArray(MagicCube mc) {
         int size = mc.getSize();
         int[] ret = new int[125];
-        for (int i=0; i<size; i++) {
-            for (int j=0; j<size; j++) {
-                for (int k=0; k<size; k++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
                     Position pos = new Position(i, j, k);
-                    int index = i*25 + j*5 + k;
+                    int index = i * 25 + j * 5 + k;
                     ret[index] = mc.getCubeElement(pos);
                 }
             }
@@ -89,11 +92,11 @@ public class GeneticAlgorithm implements IAlgorithm {
 
     private MagicCube translateArraytoCube(int[] arr) {
         MagicCube ret = new MagicCube(5);
-        for (int i=0; i<5; i++) {
-            for (int j=0; j<5; j++) {
-                for (int k=0; k<5; k++) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                for (int k = 0; k < 5; k++) {
                     Position pos = new Position(i, j, k);
-                    int index = i*25 + j*5 + k;
+                    int index = i * 25 + j * 5 + k;
                     ret.setCubeElement(pos, arr[index]);
                 }
             }
@@ -120,7 +123,7 @@ public class GeneticAlgorithm implements IAlgorithm {
             crossover_point2 = temp;
         }
 
-        for (int i=crossover_point1; i<=crossover_point2; i++) {
+        for (int i = crossover_point1; i <= crossover_point2; i++) {
             child1[i] = arr_parent1[i];
             child2[i] = arr_parent2[i];
         }
@@ -207,5 +210,10 @@ public class GeneticAlgorithm implements IAlgorithm {
 
     public void setMaxGenerations(int max_generations) {
         this.max_generations = max_generations;
+    }
+
+    @Override
+    public GraphData getGraphData() {
+        return graphData;
     }
 }
