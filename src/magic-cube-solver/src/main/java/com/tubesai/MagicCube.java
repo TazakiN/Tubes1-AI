@@ -36,7 +36,7 @@ public class MagicCube {
             }
         }
 
-        this.fitness = evaluateObjFunc();
+        this.fitness = evaluateObjFunc2();
     }
 
     private void updateSequence(){

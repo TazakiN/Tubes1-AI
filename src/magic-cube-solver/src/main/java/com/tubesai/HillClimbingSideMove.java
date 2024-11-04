@@ -15,7 +15,7 @@ public class HillClimbingSideMove implements IAlgorithm {
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
         Map<String, Boolean> cubemap = new HashMap<>();
-        graphData.addData(cube.evaluateObjFunc());
+        graphData.addData(cube.getFitness());
 
         MagicCube prev = new MagicCube(cube);
         cubemap.put(cube.sequence, true);
@@ -27,7 +27,7 @@ public class HillClimbingSideMove implements IAlgorithm {
             graphData.finishIteration();
             MagicCube next = new MagicCube(getNextNeighbour(prev, cubemap));
             // System.out.println(side_moves);
-            graphData.addData(next.evaluateObjFunc());
+            graphData.addData(next.getFitness());
             
             if (next.getFitness() > prev.getFitness()) {
                     side_moves = 0; // Reset jika ada peningkatan fitness
