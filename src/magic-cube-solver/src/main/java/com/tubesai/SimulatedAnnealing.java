@@ -48,7 +48,8 @@ public class SimulatedAnnealing implements IAlgorithm {
 
     /**
      * Solves the given MagicCube using the Simulated Annealing algorithm. Resets
-     * and updates the probabilityHistory attribute.
+     * and updates the probabilityHistory attribute. With HEURISTIC to update the
+     * best cube if the current cube has a better fitness.
      *
      * @param cube the initial MagicCube to be solved
      * @return the solved MagicCube with the best fitness found
@@ -82,6 +83,7 @@ public class SimulatedAnnealing implements IAlgorithm {
                 currentCube = new MagicCube(neighbour);
             }
 
+            // HEURISTIC: Update the best cube if the current cube has a better fitness
             if (currentFitness > bestCube.getFitness()) {
                 bestCube = new MagicCube(currentCube);
                 System.out.println("Best Fitness: " + bestCube.getFitness());
