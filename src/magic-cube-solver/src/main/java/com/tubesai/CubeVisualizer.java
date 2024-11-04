@@ -6,7 +6,6 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -182,52 +181,62 @@ public class CubeVisualizer {
         if (graphData == null) {
             return;
         }
+
         DefaultCategoryDataset objFuncDataset = new DefaultCategoryDataset();
         DefaultCategoryDataset probDataset = new DefaultCategoryDataset();
 
         Map<Integer, GraphData.IterationStats> allData = graphData.getAllData();
+
+        int maxDataPoints = 1000;
+        int totalIterations = allData.size();
+        int skip = (int) Math.ceil((double) totalIterations / maxDataPoints);
+
+        int index = 0;
         for (Map.Entry<Integer, GraphData.IterationStats> entry : allData.entrySet()) {
-            int iteration = entry.getKey();
-            GraphData.IterationStats stats = entry.getValue();
-            double avgValue = stats.getAverage();
-            int maxValue = stats.getMax();
+            if (index % skip == 0) {
+                int iteration = entry.getKey();
+                GraphData.IterationStats stats = entry.getValue();
+                double avgValue = stats.getAverage();
+                int maxValue = stats.getMax();
 
-            objFuncDataset.addValue(avgValue, "Average ObjFunc", String.valueOf(iteration + 1));
-            objFuncDataset.addValue(maxValue, "Max ObjFunc", String.valueOf(iteration + 1));
+                objFuncDataset.addValue(avgValue, "Average ObjFunc", String.valueOf(iteration + 1));
+                objFuncDataset.addValue(maxValue, "Max ObjFunc", String.valueOf(iteration + 1));
 
-            if (graphData.isSimulatedAnnealing()) {
-                double avgTemp = stats.getAverageTemperature();
-                // Calculate acceptance probability based on temperature
-                double probability = Math.exp(-Math.abs(maxValue - avgValue) / avgTemp);
-                probDataset.addValue(probability, "Acceptance Probability", String.valueOf(iteration + 1));
+                if (graphData.isSimulatedAnnealing()) {
+                    double avgTemp = stats.getAverageTemperature();
+                    // Calculate acceptance probability based on temperature
+                    double probability = avgTemp != 0 ? Math.exp(-Math.abs(maxValue - avgValue) / avgTemp) : 0;
+                    probDataset.addValue(probability, "Acceptance Probability", String.valueOf(iteration + 1));
+                }
             }
+            index++;
+        }
 
-            JFreeChart objFuncChart = ChartFactory.createLineChart(
-                    "Objective Function Values Over Iterations",
+        JFreeChart objFuncChart = ChartFactory.createLineChart(
+                "Objective Function Values Over Iterations",
+                "Iteration",
+                "Objective Function Value",
+                objFuncDataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false);
+        chartPanel.setChart(objFuncChart);
+
+        if (graphData.isSimulatedAnnealing() && probDataset.getRowCount() > 0) {
+            JFreeChart probChart = ChartFactory.createLineChart(
+                    "Acceptance Probability Over Iterations",
                     "Iteration",
-                    "Objective Function Value",
-                    objFuncDataset,
+                    "Probability",
+                    probDataset,
                     PlotOrientation.VERTICAL,
                     true,
                     true,
                     false);
-            chartPanel.setChart(objFuncChart);
-
-            if (graphData.isSimulatedAnnealing() && probDataset.getRowCount() > 0) {
-                JFreeChart probChart = ChartFactory.createLineChart(
-                        "Acceptance Probability Over Iterations",
-                        "Iteration",
-                        "Probability",
-                        probDataset,
-                        PlotOrientation.VERTICAL,
-                        true,
-                        true,
-                        false);
-                probabilityChartPanel.setChart(probChart);
-                probabilityChartPanel.setVisible(true);
-            } else {
-                probabilityChartPanel.setVisible(false);
-            }
+            probabilityChartPanel.setChart(probChart);
+            probabilityChartPanel.setVisible(true);
+        } else {
+            probabilityChartPanel.setVisible(false);
         }
     }
 
