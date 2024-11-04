@@ -38,6 +38,9 @@ public class CubeVisualizer {
     private static GraphData graphData;
     private static ChartPanel probabilityChartPanel;
     private static Map<Integer, List<JLabel>> colorIndexToLabels = new HashMap<>();
+    private static long executionTime;
+    private static int totalIterations;
+    private static int localOptimumFrequency;
 
     /**
      * Visualizes the given MagicCube in a graphical user interface.
@@ -60,7 +63,18 @@ public class CubeVisualizer {
         JPanel mainPanel = new JPanel(new BorderLayout());
         frame.add(mainPanel);
 
-        hoveredCellLabel = new JLabel("Hover mouse over a cell to highlight related cells.", SwingConstants.CENTER);
+        CubeVisualizer.graphData = graphData;
+        executionTime = (long) graphData.getExecutionTime();
+        totalIterations = graphData.getAllData().size();
+        if (graphData.getLocalOptimumFrequency() > 0) {
+            localOptimumFrequency = graphData.getLocalOptimumFrequency();
+        }
+
+        String labelText = String.format("Execution Time: %d ms | Iterations: %d", executionTime, totalIterations);
+        if (graphData.getLocalOptimumFrequency() > 0) {
+            labelText += String.format(" | Local Optimum Frequency: %d", localOptimumFrequency);
+        }
+        hoveredCellLabel = new JLabel(labelText, SwingConstants.CENTER);
         hoveredCellLabel.setPreferredSize(new Dimension(400, 30));
         mainPanel.add(hoveredCellLabel, BorderLayout.NORTH);
 
@@ -117,8 +131,6 @@ public class CubeVisualizer {
         }
         cubePanel2.add(summaryPanel, BorderLayout.SOUTH);
 
-        CubeVisualizer.graphData = graphData;
-
         updateCharts();
 
         frame.setVisible(true);
@@ -168,9 +180,12 @@ public class CubeVisualizer {
      * It limits the number of data points displayed to a maximum of 1000 for better
      * performance and readability.
      * 
-     * The objective function chart displays the average and maximum objective function
-     * values over the iterations. If the graph data is for a simulated annealing process,
-     * it also calculates and displays the acceptance probability based on the temperature
+     * The objective function chart displays the average and maximum objective
+     * function
+     * values over the iterations. If the graph data is for a simulated annealing
+     * process,
+     * it also calculates and displays the acceptance probability based on the
+     * temperature
      * and the difference between the maximum and average objective function values.
      * 
      * The charts are created using the JFreeChart library and are displayed on the
@@ -257,14 +272,23 @@ public class CubeVisualizer {
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            hoveredCellLabel.setText(String.format("Position: x = %d, y = %d, z = %d", z + 1, y + 1, x + 1));
+            String text = String.format("Position: x = %d, y = %d, z = %d | Execution Time: %d ms | Iterations: %d",
+                    z + 1, y + 1, x + 1, executionTime, totalIterations);
+            if (localOptimumFrequency > 0) {
+                text += String.format(" | Local Optimum Frequency: %d", localOptimumFrequency);
+            }
+            hoveredCellLabel.setText(text);
             highlightRelatedCells();
             updateSummaryLabels();
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            hoveredCellLabel.setText("Hover mouse over a cell to highlight related cells.");
+            String text = String.format("Execution Time: %d ms | Iterations: %d", executionTime, totalIterations);
+            if (localOptimumFrequency > 0) {
+                text += String.format(" | Local Optimum Frequency: %d", localOptimumFrequency);
+            }
+            hoveredCellLabel.setText(text);
             resetHighlightedCells();
             updateSummaryLabels();
         }
