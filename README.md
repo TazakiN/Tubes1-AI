@@ -55,11 +55,12 @@ Program ini memiliki beberapa fitur penting, diantaranya
 - Membuat State awal Magic Cube secara random
 - Membuat State awal Magic Cube dari sebuah JSON file
 
-## Authors
+## Authors and Task Distribution
 
 Kelompok 11:
 
-- 13522015 / Yusuf Ardian Sandi
-- 13522018 / Ibrahim Ihsan Rasyid
-- 13522031 / Zaki Yudhistira Candra
-- 13522032 / Tazkia Nizami
+- 13522015 / Yusuf Ardian Sandi (MagicCube Class, Algoritma Simulated Annealing, Main Class, Menu Class)
+- 13522018 / Ibrahim Ihsan Rasyid (GeneticAlgorithm Class)
+- 13522031 / Zaki Yudhistira Candra (HillClimbing Class)
+- 13522032 / Tazkia Nizami (Magic Cube Visualization, Graph Data)
+ 
