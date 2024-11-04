@@ -160,6 +160,22 @@ public class CubeVisualizer {
         updateCharts();
     }
 
+    /**
+     * Updates the charts with the latest graph data.
+     * 
+     * This method retrieves all the iteration statistics from the graph data and
+     * updates the objective function and acceptance probability charts accordingly.
+     * It limits the number of data points displayed to a maximum of 1000 for better
+     * performance and readability.
+     * 
+     * The objective function chart displays the average and maximum objective function
+     * values over the iterations. If the graph data is for a simulated annealing process,
+     * it also calculates and displays the acceptance probability based on the temperature
+     * and the difference between the maximum and average objective function values.
+     * 
+     * The charts are created using the JFreeChart library and are displayed on the
+     * respective chart panels.
+     */
     private static void updateCharts() {
         if (graphData == null) {
             return;
