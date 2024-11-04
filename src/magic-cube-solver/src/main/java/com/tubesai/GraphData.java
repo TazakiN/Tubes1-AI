@@ -35,16 +35,8 @@ public class GraphData {
         addData(objFuncValue, 0.0);
     }
 
-    /**
-     * Adds data for the current iteration, including the objective function value
-     * and temperature.
-     * Updates the best value if the new objective function value is better.
-     * 
-     * @param objFuncValue the objective function value to be added
-     * @param temperature  the temperature value to be added
-     */
-    public void addData(int objFuncValue, double temperature) {
-        InnerGraphData newData = new InnerGraphData(objFuncValue, currentIteration, temperature);
+    public void addData(int objFuncValue, double accProbability) {
+        InnerGraphData newData = new InnerGraphData(objFuncValue, currentIteration, accProbability);
 
         if (bestValue == null || objFuncValue < bestValue.objFuncValue) {
             bestValue = newData;
@@ -53,7 +45,7 @@ public class GraphData {
         IterationStats stats = iterationData.computeIfAbsent(currentIteration,
                 k -> new IterationStats(isSimulatedAnnealing));
 
-        stats.addValue(objFuncValue, temperature);
+        stats.addValue(objFuncValue, accProbability);
     }
 
     /**
@@ -176,23 +168,23 @@ public class GraphData {
      * The IterationStats class is used to track statistical data over multiple
      * iterations.
      * It keeps track of the count, sum, minimum, and maximum values, as well as the
-     * sum of temperatures if required.
+     * sum of accProbability if required.
      */
     static class IterationStats {
         private int count;
         private double sum;
         private int min;
         private int max;
-        private double temperatureSum;
-        private final boolean trackTemperature;
+        private double accProbabilitySum;
+        private final boolean trackAccProbability;
 
-        public IterationStats(boolean trackTemperature) {
+        public IterationStats(boolean trackAccProbability) {
             this.count = 0;
             this.sum = 0;
             this.min = Integer.MAX_VALUE;
             this.max = Integer.MIN_VALUE;
-            this.temperatureSum = 0;
-            this.trackTemperature = trackTemperature;
+            this.accProbabilitySum = 0;
+            this.trackAccProbability = trackAccProbability;
         }
 
         /**
@@ -202,14 +194,14 @@ public class GraphData {
          * @param temperature the temperature associated with the value, used if
          *                    tracking temperature
          */
-        public void addValue(int value, double temperature) {
+        public void addValue(int value, double accProbability) {
             count++;
             sum += value;
             min = Math.min(min, value);
             max = Math.max(max, value);
 
-            if (trackTemperature) {
-                temperatureSum += temperature;
+            if (trackAccProbability) {
+                accProbabilitySum += accProbability;
             }
         }
 
@@ -230,7 +222,7 @@ public class GraphData {
          *         otherwise returns 0.
          */
         public double getAverageTemperature() {
-            return count > 0 && trackTemperature ? temperatureSum / count : 0;
+            return count > 0 && trackAccProbability ? accProbabilitySum / count : 0;
         }
 
         public int getMin() {
@@ -239,6 +231,10 @@ public class GraphData {
 
         public int getMax() {
             return max;
+        }
+
+        public double getAverageAcceptanceProbability() {
+            return count > 0 ? accProbabilitySum / count : 0;
         }
 
         // Removed getValues() and getTemperatures() methods

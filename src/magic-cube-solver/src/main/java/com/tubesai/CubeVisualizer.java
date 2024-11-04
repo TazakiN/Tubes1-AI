@@ -217,10 +217,9 @@ public class CubeVisualizer {
                 objFuncDataset.addValue(maxValue, "Max ObjFunc", String.valueOf(iteration + 1));
 
                 if (graphData.isSimulatedAnnealing()) {
-                    double avgTemp = stats.getAverageTemperature();
-                    // Calculate acceptance probability based on temperature
-                    double probability = avgTemp != 0 ? Math.exp(-Math.abs(maxValue - avgValue) / avgTemp) : 0;
-                    probDataset.addValue(probability, "Acceptance Probability", String.valueOf(iteration + 1));
+                    double avgAcceptanceProbability = stats.getAverageAcceptanceProbability();
+                    probDataset.addValue(avgAcceptanceProbability, "Acceptance Probability",
+                            String.valueOf(iteration + 1));
                 }
             }
             index++;

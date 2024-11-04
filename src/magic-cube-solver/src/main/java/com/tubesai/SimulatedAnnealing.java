@@ -75,8 +75,7 @@ public class SimulatedAnnealing implements IAlgorithm {
 
             double accProbability = acceptanceProbability(currentFitness, neighbourFitness, temperature);
 
-            graphData.addData(neighbourFitness, temperature);
-            // probabilityHistory.add(accProbability);
+            graphData.addData(neighbourFitness, accProbability);
 
             // Hitung frekuensi stuck local optimum
             if (!(neighbourFitness > currentFitness)) {
