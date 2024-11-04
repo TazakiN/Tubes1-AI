@@ -3,6 +3,8 @@
 
 > Program untuk menyelesaikan permasalahan Magic Cube 5 x 5 x 5 dan menyelesaikannya dengan menggunakan algoritma Hill Climbing With Side Moves, Simulated Annealing, dan Genetic Algorihtms.
 
+![Simulated Annealing Visualization](doc/SAVisualize.png)
+
 ## Tech Stack
 
 - **Language**: Java
