@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -36,6 +37,7 @@ public class CubeVisualizer {
     private static ChartPanel chartPanel;
     private static GraphData graphData;
     private static ChartPanel probabilityChartPanel;
+    private static Map<Integer, List<JLabel>> colorIndexToLabels = new HashMap<>();
 
     /**
      * Visualizes the given MagicCube in a graphical user interface.
@@ -128,19 +130,12 @@ public class CubeVisualizer {
      */
     private static void updateSummaryLabels() {
         int[] colorSums = new int[highlightColors.length];
-
-        for (int z = 0; z < size; z++) {
-            for (int y = 0; y < size; y++) {
-                for (int x = 0; x < size; x++) {
-                    Color bgColor = labelGrid[z][y][x].getBackground();
-                    if (bgColor != null) {
-                        for (int i = 0; i < highlightColors.length; i++) {
-                            if (bgColor.equals(highlightColors[i])) {
-                                colorSums[i] += cubeValues[z][y][x];
-                                break;
-                            }
-                        }
-                    }
+        for (int colorIndex = 0; colorIndex < highlightColors.length; colorIndex++) {
+            List<JLabel> labels = colorIndexToLabels.get(colorIndex);
+            if (labels != null) {
+                for (JLabel lbl : labels) {
+                    int value = Integer.parseInt(lbl.getText());
+                    colorSums[colorIndex] += value;
                 }
             }
         }
@@ -163,18 +158,6 @@ public class CubeVisualizer {
         chartPanel.setChart(chart);
 
         updateCharts();
-    }
-
-    public static GraphData createDummyGraphData() {
-        GraphData dummyData = new GraphData(true);
-        for (int iter = 0; iter < 50; iter++) {
-            for (int i = 0; i < 5; i++) {
-                int objFuncValue = (int) (Math.random() * 100) + iter * 10;
-                dummyData.addData(objFuncValue);
-            }
-            dummyData.finishIteration();
-        }
-        return dummyData;
     }
 
     /**
@@ -265,7 +248,6 @@ public class CubeVisualizer {
     private static class CubeMouseListener extends MouseAdapter {
         private final int x, y, z;
         private final List<JLabel> highlightedLabels = new ArrayList<>();
-        private final List<Integer> colorIndices = new ArrayList<>();
 
         public CubeMouseListener(int x, int y, int z) {
             this.x = x;
@@ -289,6 +271,8 @@ public class CubeVisualizer {
 
         private void highlightRelatedCells() {
             int colorIndex = 0;
+
+            CubeVisualizer.colorIndexToLabels.clear();
 
             // Highlight baris
             for (int i = 0; i < size; i++) {
@@ -359,7 +343,7 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            // Diagonal ruang utama dan sekunder
+            // Diagonal ruang 1 (dari (0,0,0) ke (size-1,size-1,size-1))
             if (x == y && y == z) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[i][i][i], highlightColors[colorIndex % highlightColors.length],
@@ -368,16 +352,8 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            if (x == y && z == size - 1 - x) {
-                for (int i = 0; i < size; i++) {
-                    highlightLabel(labelGrid[i][i][size - 1 - i], highlightColors[colorIndex % highlightColors.length],
-                            colorIndex);
-                }
-            }
-            colorIndex++;
-
-            // Diagonal ruang silang
-            if (x == size - 1 - y && y == z) {
+            // Diagonal ruang 2 (dari (size-1, size-1, 0) ke (0, 0, size-1))
+            if (x + z == size - 1 && y == x) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[size - 1 - i][i][i], highlightColors[colorIndex % highlightColors.length],
                             colorIndex);
@@ -385,7 +361,8 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            if (x == y && y == size - 1 - z) {
+            // Diagonal ruang 3 (dari (0,size-1,0) ke (size-1,0,size-1))
+            if (y + z == size - 1 && x == z) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[i][size - 1 - i][i], highlightColors[colorIndex % highlightColors.length],
                             colorIndex);
@@ -393,7 +370,8 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            if (x == size - 1 - y && z == size - 1 - x) {
+            // Diagonal ruang 4 (dari (0,0,size-1) ke (size-1,size-1,0))
+            if (x + y == size - 1 && y == z) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[size - 1 - i][size - 1 - i][i],
                             highlightColors[colorIndex % highlightColors.length], colorIndex);
@@ -401,20 +379,13 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            if (x == size - 1 - y && y == z) {
-                for (int i = 0; i < size; i++) {
-                    highlightLabel(labelGrid[size - 1 - i][i][size - 1 - i],
-                            highlightColors[colorIndex % highlightColors.length], colorIndex);
-                }
-            }
+            resetHighlightedCell(hoveredCellLabel);
         }
 
         private void highlightLabel(JLabel lbl, Color color, int colorIndex) {
-            if (!highlightedLabels.contains(lbl)) {
-                lbl.setBackground(color);
-                highlightedLabels.add(lbl);
-                colorIndices.add(colorIndex);
-            }
+            lbl.setBackground(color);
+            highlightedLabels.add(lbl);
+            CubeVisualizer.colorIndexToLabels.computeIfAbsent(colorIndex, k -> new ArrayList<>()).add(lbl);
         }
 
         private void resetHighlightedCells() {
@@ -422,7 +393,11 @@ public class CubeVisualizer {
                 lbl.setBackground(null);
             }
             highlightedLabels.clear();
-            colorIndices.clear();
+            CubeVisualizer.colorIndexToLabels.clear();
+        }
+
+        private void resetHighlightedCell(JLabel lbl) {
+            lbl.setBackground(null);
         }
     }
 }
