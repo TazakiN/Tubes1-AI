@@ -1,6 +1,5 @@
 package com.tubesai;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -10,6 +9,8 @@ public class GraphData {
     private int currentIteration;
     private InnerGraphData bestValue;
     private boolean isSimulatedAnnealing;
+    private double executionTime;
+    private int localOptimumFrequency;
 
     public GraphData(boolean isSimulatedAnnealing) {
         this.iterationData = new HashMap<>();
@@ -34,15 +35,8 @@ public class GraphData {
         addData(objFuncValue, 0.0);
     }
 
-    /**
-     * Adds data for the current iteration, including the objective function value and temperature.
-     * Updates the best value if the new objective function value is better.
-     * 
-     * @param objFuncValue the objective function value to be added
-     * @param temperature the temperature value to be added
-     */
-    public void addData(int objFuncValue, double temperature) {
-        InnerGraphData newData = new InnerGraphData(objFuncValue, currentIteration, temperature);
+    public void addData(int objFuncValue, double accProbability) {
+        InnerGraphData newData = new InnerGraphData(objFuncValue, currentIteration, accProbability);
 
         if (bestValue == null || objFuncValue < bestValue.objFuncValue) {
             bestValue = newData;
@@ -51,7 +45,7 @@ public class GraphData {
         IterationStats stats = iterationData.computeIfAbsent(currentIteration,
                 k -> new IterationStats(isSimulatedAnnealing));
 
-        stats.addValue(objFuncValue, temperature);
+        stats.addValue(objFuncValue, accProbability);
     }
 
     /**
@@ -64,8 +58,10 @@ public class GraphData {
     /**
      * Retrieves the average objective function value for a given iteration.
      *
-     * @param iteration the iteration number for which the average objective function value is requested
-     * @return the average objective function value for the specified iteration, or 0.0 if the iteration data is not available
+     * @param iteration the iteration number for which the average objective
+     *                  function value is requested
+     * @return the average objective function value for the specified iteration, or
+     *         0.0 if the iteration data is not available
      */
     public double getAvgObjFuncValue(int iteration) {
         IterationStats stats = iterationData.get(iteration);
@@ -73,10 +69,13 @@ public class GraphData {
     }
 
     /**
-     * Retrieves the average temperature for a given iteration during the simulated annealing process.
+     * Retrieves the average temperature for a given iteration during the simulated
+     * annealing process.
      *
-     * @param iteration the iteration number for which the average temperature is requested
-     * @return the average temperature for the specified iteration if simulated annealing is enabled,
+     * @param iteration the iteration number for which the average temperature is
+     *                  requested
+     * @return the average temperature for the specified iteration if simulated
+     *         annealing is enabled,
      *         otherwise returns 0.0
      */
     public double getAvgTemperature(int iteration) {
@@ -89,7 +88,8 @@ public class GraphData {
     /**
      * Retrieves the best objective function value.
      *
-     * @return the best objective function value encapsulated in an InnerGraphData object.
+     * @return the best objective function value encapsulated in an InnerGraphData
+     *         object.
      */
     public InnerGraphData getBestObjFuncValue() {
         return bestValue;
@@ -107,7 +107,8 @@ public class GraphData {
     /**
      * Retrieves all iteration data.
      *
-     * @return a map containing all iteration statistics, where the key is the iteration number
+     * @return a map containing all iteration statistics, where the key is the
+     *         iteration number
      *         and the value is the corresponding {@link IterationStats} object.
      */
     public Map<Integer, IterationStats> getAllData() {
@@ -124,8 +125,10 @@ public class GraphData {
     }
 
     /**
-     * InnerGraphData is a static inner class that holds data related to graph operations.
-     * It contains information about the objective function value, iteration number, and temperature.
+     * InnerGraphData is a static inner class that holds data related to graph
+     * operations.
+     * It contains information about the objective function value, iteration number,
+     * and temperature.
      */
     public static class InnerGraphData {
         private final int objFuncValue;
@@ -162,40 +165,43 @@ public class GraphData {
     }
 
     /**
-     * The IterationStats class is used to track statistical data over multiple iterations.
-     * It keeps track of the count, sum, minimum, and maximum values, as well as the sum of temperatures if required.
+     * The IterationStats class is used to track statistical data over multiple
+     * iterations.
+     * It keeps track of the count, sum, minimum, and maximum values, as well as the
+     * sum of accProbability if required.
      */
     static class IterationStats {
         private int count;
         private double sum;
         private int min;
         private int max;
-        private double temperatureSum;
-        private final boolean trackTemperature;
+        private double accProbabilitySum;
+        private final boolean trackAccProbability;
 
-        public IterationStats(boolean trackTemperature) {
+        public IterationStats(boolean trackAccProbability) {
             this.count = 0;
             this.sum = 0;
             this.min = Integer.MAX_VALUE;
             this.max = Integer.MIN_VALUE;
-            this.temperatureSum = 0;
-            this.trackTemperature = trackTemperature;
+            this.accProbabilitySum = 0;
+            this.trackAccProbability = trackAccProbability;
         }
 
         /**
          * Adds a value to the graph data and updates the statistical metrics.
          *
-         * @param value the value to be added
-         * @param temperature the temperature associated with the value, used if tracking temperature
+         * @param value       the value to be added
+         * @param temperature the temperature associated with the value, used if
+         *                    tracking temperature
          */
-        public void addValue(int value, double temperature) {
+        public void addValue(int value, double accProbability) {
             count++;
             sum += value;
             min = Math.min(min, value);
             max = Math.max(max, value);
 
-            if (trackTemperature) {
-                temperatureSum += temperature;
+            if (trackAccProbability) {
+                accProbabilitySum += accProbability;
             }
         }
 
@@ -211,11 +217,12 @@ public class GraphData {
         /**
          * Calculates the average temperature.
          *
-         * @return the average temperature if the count is greater than 0 and trackTemperature is true,
+         * @return the average temperature if the count is greater than 0 and
+         *         trackTemperature is true,
          *         otherwise returns 0.
          */
         public double getAverageTemperature() {
-            return count > 0 && trackTemperature ? temperatureSum / count : 0;
+            return count > 0 && trackAccProbability ? accProbabilitySum / count : 0;
         }
 
         public int getMin() {
@@ -226,13 +233,18 @@ public class GraphData {
             return max;
         }
 
+        public double getAverageAcceptanceProbability() {
+            return count > 0 ? accProbabilitySum / count : 0;
+        }
+
         // Removed getValues() and getTemperatures() methods
     }
 
     /**
      * Creates a dummy GraphData object.
      *
-     * @param isSimulatedAnnealing a boolean indicating whether to use simulated annealing.
+     * @param isSimulatedAnnealing a boolean indicating whether to use simulated
+     *                             annealing.
      * @return a dummy GraphData object.
      */
     public static GraphData createDummyData(boolean isSimulatedAnnealing) {
@@ -240,11 +252,14 @@ public class GraphData {
     }
 
     /**
-     * Creates dummy data for testing purposes, simulating the behavior of an optimization algorithm.
+     * Creates dummy data for testing purposes, simulating the behavior of an
+     * optimization algorithm.
      *
-     * @param isSimulatedAnnealing A boolean indicating whether to simulate data for Simulated Annealing (true) or another algorithm (false).
-     * @param iterations The number of iterations to simulate.
-     * @param samplesPerIteration The number of samples to generate per iteration.
+     * @param isSimulatedAnnealing A boolean indicating whether to simulate data for
+     *                             Simulated Annealing (true) or another algorithm
+     *                             (false).
+     * @param iterations           The number of iterations to simulate.
+     * @param samplesPerIteration  The number of samples to generate per iteration.
      * @return A GraphData object containing the generated dummy data.
      */
     public static GraphData createDummyData(boolean isSimulatedAnnealing, int iterations, int samplesPerIteration) {
@@ -292,33 +307,48 @@ public class GraphData {
     }
 
     /**
-     * Creates a realistic dummy data set for magic cube optimization using either Simulated Annealing (SA) or Hill Climbing.
+     * Creates a realistic dummy data set for magic cube optimization using either
+     * Simulated Annealing (SA) or Hill Climbing.
      *
-     * @param isSimulatedAnnealing A boolean flag indicating whether to use Simulated Annealing (true) or Hill Climbing (false).
+     * @param isSimulatedAnnealing A boolean flag indicating whether to use
+     *                             Simulated Annealing (true) or Hill Climbing
+     *                             (false).
      * @return A GraphData object containing the generated dummy data.
      *
-     * <p>The method generates data based on the following parameters:
-     * - Cube size: 3x3x3
-     * - Maximum possible error: cubeSize^3 * 100
-     * - Initial error rate: 70% of the maximum possible error
-     * - Iterations: 100
-     * - Samples per iteration: 8
+     *         <p>
+     *         The method generates data based on the following parameters:
+     *         - Cube size: 3x3x3
+     *         - Maximum possible error: cubeSize^3 * 100
+     *         - Initial error rate: 70% of the maximum possible error
+     *         - Iterations: 100
+     *         - Samples per iteration: 8
      *
-     * <p>For Simulated Annealing:
-     * - Initial temperature: 10% of the maximum possible error
-     * - Final temperature: 0.1
-     * - Cooling rate: calculated based on the initial and final temperatures over the number of iterations
+     *         <p>
+     *         For Simulated Annealing:
+     *         - Initial temperature: 10% of the maximum possible error
+     *         - Final temperature: 0.1
+     *         - Cooling rate: calculated based on the initial and final
+     *         temperatures over the number of iterations
      *
-     * <p>The method simulates the optimization process by iterating through a number of iterations and samples per iteration.
-     * It calculates an error rate using a combination of exponential and logarithmic decay.
-     * Random variations and "lucky" improvements are added to simulate realistic optimization behavior.
+     *         <p>
+     *         The method simulates the optimization process by iterating through a
+     *         number of iterations and samples per iteration.
+     *         It calculates an error rate using a combination of exponential and
+     *         logarithmic decay.
+     *         Random variations and "lucky" improvements are added to simulate
+     *         realistic optimization behavior.
      *
-     * <p>For Simulated Annealing, the acceptance probability is calculated based on the current temperature, and sometimes
-     * improvements are rejected based on this probability.
+     *         <p>
+     *         For Simulated Annealing, the acceptance probability is calculated
+     *         based on the current temperature, and sometimes
+     *         improvements are rejected based on this probability.
      *
-     * <p>For Hill Climbing, only improvements are accepted.
+     *         <p>
+     *         For Hill Climbing, only improvements are accepted.
      *
-     * <p>The temperature is updated for each iteration in the case of Simulated Annealing.
+     *         <p>
+     *         The temperature is updated for each iteration in the case of
+     *         Simulated Annealing.
      */
     public static GraphData createRealisticDummyData(boolean isSimulatedAnnealing) {
         GraphData dummyData = new GraphData(isSimulatedAnnealing);
@@ -380,5 +410,42 @@ public class GraphData {
         }
 
         return dummyData;
+    }
+
+    /**
+     * Sets the execution time for the graph data.
+     *
+     * @param executionTime the execution time to set, in seconds
+     */
+    public void setExecutionTime(double executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    /**
+     * Returns the execution time.
+     *
+     * @return the execution time as a double.
+     */
+    public double getExecutionTime() {
+        return executionTime;
+    }
+
+    /**
+     * Sets the frequency of local optimum occurrences.
+     *
+     * @param localOptimumFrequency the frequency of local optimum occurrences to
+     *                              set
+     */
+    public void setLocalOptimumFrequency(int localOptimumFrequency) {
+        this.localOptimumFrequency = localOptimumFrequency;
+    }
+
+    /**
+     * Returns the frequency of local optimum occurrences.
+     *
+     * @return the frequency of local optimum occurrences.
+     */
+    public int getLocalOptimumFrequency() {
+        return localOptimumFrequency;
     }
 }

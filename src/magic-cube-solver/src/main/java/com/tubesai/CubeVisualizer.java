@@ -38,6 +38,9 @@ public class CubeVisualizer {
     private static GraphData graphData;
     private static ChartPanel probabilityChartPanel;
     private static Map<Integer, List<JLabel>> colorIndexToLabels = new HashMap<>();
+    private static long executionTime;
+    private static int totalIterations;
+    private static int localOptimumFrequency;
 
     /**
      * Visualizes the given MagicCube in a graphical user interface.
@@ -60,7 +63,18 @@ public class CubeVisualizer {
         JPanel mainPanel = new JPanel(new BorderLayout());
         frame.add(mainPanel);
 
-        hoveredCellLabel = new JLabel("Hover mouse over a cell to highlight related cells.", SwingConstants.CENTER);
+        CubeVisualizer.graphData = graphData;
+        executionTime = (long) graphData.getExecutionTime();
+        totalIterations = graphData.getAllData().size();
+        if (graphData.getLocalOptimumFrequency() > 0) {
+            localOptimumFrequency = graphData.getLocalOptimumFrequency();
+        }
+
+        String labelText = String.format("Execution Time: %d ms | Iterations: %d", executionTime, totalIterations);
+        if (graphData.getLocalOptimumFrequency() > 0) {
+            labelText += String.format(" | Local Optimum Frequency: %d", localOptimumFrequency);
+        }
+        hoveredCellLabel = new JLabel(labelText, SwingConstants.CENTER);
         hoveredCellLabel.setPreferredSize(new Dimension(400, 30));
         mainPanel.add(hoveredCellLabel, BorderLayout.NORTH);
 
@@ -117,8 +131,6 @@ public class CubeVisualizer {
         }
         cubePanel2.add(summaryPanel, BorderLayout.SOUTH);
 
-        CubeVisualizer.graphData = graphData;
-
         updateCharts();
 
         frame.setVisible(true);
@@ -168,9 +180,12 @@ public class CubeVisualizer {
      * It limits the number of data points displayed to a maximum of 1000 for better
      * performance and readability.
      * 
-     * The objective function chart displays the average and maximum objective function
-     * values over the iterations. If the graph data is for a simulated annealing process,
-     * it also calculates and displays the acceptance probability based on the temperature
+     * The objective function chart displays the average and maximum objective
+     * function
+     * values over the iterations. If the graph data is for a simulated annealing
+     * process,
+     * it also calculates and displays the acceptance probability based on the
+     * temperature
      * and the difference between the maximum and average objective function values.
      * 
      * The charts are created using the JFreeChart library and are displayed on the
@@ -202,10 +217,9 @@ public class CubeVisualizer {
                 objFuncDataset.addValue(maxValue, "Max ObjFunc", String.valueOf(iteration + 1));
 
                 if (graphData.isSimulatedAnnealing()) {
-                    double avgTemp = stats.getAverageTemperature();
-                    // Calculate acceptance probability based on temperature
-                    double probability = avgTemp != 0 ? Math.exp(-Math.abs(maxValue - avgValue) / avgTemp) : 0;
-                    probDataset.addValue(probability, "Acceptance Probability", String.valueOf(iteration + 1));
+                    double avgAcceptanceProbability = stats.getAverageAcceptanceProbability();
+                    probDataset.addValue(avgAcceptanceProbability, "Acceptance Probability",
+                            String.valueOf(iteration + 1));
                 }
             }
             index++;
@@ -257,14 +271,23 @@ public class CubeVisualizer {
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            hoveredCellLabel.setText(String.format("Position: x = %d, y = %d, z = %d", z + 1, y + 1, x + 1));
+            String text = String.format("Position: x = %d, y = %d, z = %d | Execution Time: %d ms | Iterations: %d",
+                    z + 1, y + 1, x + 1, executionTime, totalIterations);
+            if (localOptimumFrequency > 0) {
+                text += String.format(" | Local Optimum Frequency: %d", localOptimumFrequency);
+            }
+            hoveredCellLabel.setText(text);
             highlightRelatedCells();
             updateSummaryLabels();
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            hoveredCellLabel.setText("Hover mouse over a cell to highlight related cells.");
+            String text = String.format("Execution Time: %d ms | Iterations: %d", executionTime, totalIterations);
+            if (localOptimumFrequency > 0) {
+                text += String.format(" | Local Optimum Frequency: %d", localOptimumFrequency);
+            }
+            hoveredCellLabel.setText(text);
             resetHighlightedCells();
             updateSummaryLabels();
         }
@@ -352,7 +375,7 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            // Diagonal ruang 2 (dari (size-1, size-1, 0) ke (0, 0, size-1))
+            // Diagonal ruang 2 (dari (size-1,0,0) ke (0,size-1,size-1))
             if (x + z == size - 1 && y == x) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[size - 1 - i][i][i], highlightColors[colorIndex % highlightColors.length],
@@ -361,7 +384,7 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            // Diagonal ruang 3 (dari (0,size-1,0) ke (size-1,0,size-1))
+            // Diagonal ruang 3 (dari (0, size-1, 0) ke (size-1, 0, size-1))
             if (y + z == size - 1 && x == z) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[i][size - 1 - i][i], highlightColors[colorIndex % highlightColors.length],
@@ -370,7 +393,7 @@ public class CubeVisualizer {
             }
             colorIndex++;
 
-            // Diagonal ruang 4 (dari (0,0,size-1) ke (size-1,size-1,0))
+            // Diagonal ruang 4 (dari (size-1,0,0) ke (0,size-1,size-1))
             if (x + y == size - 1 && y == z) {
                 for (int i = 0; i < size; i++) {
                     highlightLabel(labelGrid[size - 1 - i][size - 1 - i][i],

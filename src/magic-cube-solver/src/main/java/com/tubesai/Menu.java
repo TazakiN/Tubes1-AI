@@ -72,18 +72,22 @@ public class Menu {
      * 
      * @return true if the user wants to visualize the cube, false otherwise.
      */
-    public boolean isVisualize() {
+    public void isVisualize(MagicCube unsolvedCube, MagicCube solvedCube, GraphData graphData) {
         System.out.print("Do you want to visualize the cube? (y/n): ");
         String input = scanner.nextLine().trim().toLowerCase();
         System.out.println();
 
         if (input.equals("y")) {
-            return true;
+            System.out.println("Visualizing the original cube (Displayed graph took from solved cube)...\n");
+            CubeVisualizer.visualize(unsolvedCube, graphData);
+            System.out.println("Enter to continue visualizing the solved cube...");
+            scanner.nextLine();
+            System.out.println("Visualizing the solved cube...\n");
+            CubeVisualizer.visualize(solvedCube, graphData);
         } else if (!input.equals("n")) {
             System.out.println("Invalid input. Please input 'y' or 'n'.\n");
-            return isVisualize();
-        }
-        return false;
+            isVisualize(unsolvedCube, solvedCube, graphData);
+        }        
     }
 
     /**
