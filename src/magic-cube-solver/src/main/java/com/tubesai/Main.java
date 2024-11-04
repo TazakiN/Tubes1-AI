@@ -22,7 +22,7 @@ public class Main {
         } else if (algoChoice == 2) {
             solver = new SimulatedAnnealing(10, 0.000001);
         } else if (algoChoice == 3) {
-            solver = new GeneticAlgorithm(10, 100000, 0.1);
+            solver = new GeneticAlgorithm(100, 100, 0.1);
         } else {
             System.out.println("Error in algorithm choice.");
             return;

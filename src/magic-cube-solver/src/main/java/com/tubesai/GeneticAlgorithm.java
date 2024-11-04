@@ -23,6 +23,7 @@ public class GeneticAlgorithm implements IAlgorithm {
     @Override
     public MagicCube getSolvedCube(MagicCube cube) {
         // Find best solution from population
+        this.populations.set(0, cube);
         int i = 0;
         int best_eval;
         do {
@@ -42,8 +43,7 @@ public class GeneticAlgorithm implements IAlgorithm {
             best_eval = this.getBestFitness();
             graphData.finishIteration();
             this.mutation_rate -= 0.005;
-        } while (i < this.max_generations && best_eval < -100000);
-        System.out.println(i);
+        } while (i < this.max_generations && best_eval < 90);
         return this.bestCube;
     }
 
@@ -60,15 +60,14 @@ public class GeneticAlgorithm implements IAlgorithm {
         Random rand = new Random();
         int sum = 0;
         for (MagicCube mc : this.populations) {
-            sum += mc.getFitness();
+            sum += mc.getFitness()+1;
         }
         double select = rand.nextDouble();
         select *= sum;
-        double temp = 0.0;
+        int temp = 0;
         for (MagicCube mc : this.populations) {
-            temp += mc.getFitness();
-            // System.out.println(temp);
-            if (select >= temp) {
+            temp += mc.getFitness()+1;
+            if (select <= temp) {
                 return mc;
             }
         }
@@ -159,8 +158,16 @@ public class GeneticAlgorithm implements IAlgorithm {
         MagicCube mc_child2 = this.translateArraytoCube(arr_parent2);
 
         List<MagicCube> ret = new ArrayList<>();
-        ret.add(mc_child1);
-        ret.add(mc_child2);
+        if (mc_child1.getFitness() > parent1.getFitness()) {
+            ret.add(mc_child1);
+        } else {
+            ret.add(parent1);
+        }
+        if (mc_child2.getFitness() > parent2.getFitness()) {
+            ret.add(mc_child2);
+        } else {
+            ret.add(parent2);
+        }
 
         return ret;
     }
@@ -186,7 +193,7 @@ public class GeneticAlgorithm implements IAlgorithm {
     }
 
     private int getBestFitness() {
-        int ret = -10000000;
+        int ret = 0;
         for (MagicCube mc : this.populations) {
             if (mc.getFitness() > ret) {
                 ret = mc.getFitness();
