@@ -165,18 +165,6 @@ public class CubeVisualizer {
         updateCharts();
     }
 
-    public static GraphData createDummyGraphData() {
-        GraphData dummyData = new GraphData(true);
-        for (int iter = 0; iter < 50; iter++) {
-            for (int i = 0; i < 5; i++) {
-                int objFuncValue = (int) (Math.random() * 100) + iter * 10;
-                dummyData.addData(objFuncValue);
-            }
-            dummyData.finishIteration();
-        }
-        return dummyData;
-    }
-
     private static void updateCharts() {
         if (graphData == null) {
             return;
