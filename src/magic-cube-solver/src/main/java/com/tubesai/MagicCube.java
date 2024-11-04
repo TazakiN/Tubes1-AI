@@ -2,6 +2,7 @@ package com.tubesai;
 
 import java.util.Random;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -27,9 +28,9 @@ public class MagicCube {
         this.magic_number = 315;
         initializeCube();
 
-        for(int i = 0 ; i < 5 ; i++){
-            for(int j = 0 ; j < 5 ; j++){
-                for(int k = 0 ; k < 5 ; k++){
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                for (int k = 0; k < 5; k++) {
                     sequence += "-" + cube[i][j][k];
                 }
             }
@@ -47,15 +48,18 @@ public class MagicCube {
      * @throws IOException if an I/O error occurs while reading the file.
      */
     public MagicCube(String jsonFilePath) {
-        // Memuat state cube dari file JSON menggunakan Jackson
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            this.cube = objectMapper.readValue(new File(jsonFilePath), int[][][].class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(new File(jsonFilePath));
+
+            this.cube = mapper.convertValue(rootNode.get("cube"), int[][][].class);
             this.size = this.cube.length;
-            this.magic_number = 315;
-            this.fitness = evaluateObjFunc2();
+
+            this.magic_number = rootNode.has("magicNumber") ? rootNode.get("magicNumber").asInt() : 315;
+
+            this.fitness = evaluateObjFunc();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error reading JSON file: " + e.getMessage());
         }
     }
 
@@ -66,13 +70,13 @@ public class MagicCube {
      * @param cube the MagicCube object to be copied
      */
     public MagicCube(MagicCube cube) {
-        
+
         this.size = cube.getSize();
         this.cube = new int[size][size][size];
-        
-        for(int i = 0 ; i < size ; i++){
-            for(int j = 0 ; j < size ; j++){
-                for(int k = 0 ; k < size ; k++){
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
                     this.cube[i][j][k] = cube.getCubeElement(new Position(i, j, k));
                 }
             }
