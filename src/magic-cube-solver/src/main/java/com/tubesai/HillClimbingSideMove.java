@@ -57,7 +57,7 @@ public class HillClimbingSideMove implements IAlgorithm {
 
                     for (int z = i; z < dimension; z++) {
                         for (int x = (z == i) ? j : 0; x < dimension; x++) {
-                            for (int c = (z == i && x == j) ? k + 1 : 0; c < dimension; c++) { // loop pembngkitan next state yang mungkin
+                            for (int c = (z == i && x == j) ? k + 1 : 0; c < dimension; c++) { // loop pembangkitan next state yang mungkin
                                 MagicCube tempCube = new MagicCube(cube);
 
                                 tempCube.moveToNeighbour(new Position(i, j, k), new Position(z, x, c));
