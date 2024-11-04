@@ -35,7 +35,7 @@ public class Main {
         GraphData graphData = solver.getGraphData();
         System.out.println("Fitness before solving: " + cube.getFitness());
         System.out.println("Fitness after solving: " + solvedCube.getFitness());
-        System.out.println("iterasi: " + graphData.getIteration());
+        System.out.println("iterasi: " + graphData.getAllData().size());
         System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
         graphData.setExecutionTime(endTime - startTime);
         System.out.println();
