@@ -1,7 +1,5 @@
 package com.tubesai;
 
-// import java.util.Random;
-
 public class Main {
     public static void main(String[] args) {
         Menu menu = new Menu();
@@ -16,9 +14,8 @@ public class Main {
 
         IAlgorithm solver;
         int algoChoice = menu.chooseAlgoMenu();
-        // TODO: handle algorithm choice
         if (algoChoice == 1) {
-            solver = new HillClimbingSideMove(500); // Change max_side_moves as needed
+            solver = new HillClimbingSideMove(500);
         } else if (algoChoice == 2) {
             solver = new SimulatedAnnealing(10, 0.000001);
         } else if (algoChoice == 3) {
@@ -28,7 +25,6 @@ public class Main {
             return;
         }
 
-        // Solve the cube
         long startTime = System.currentTimeMillis();
         MagicCube solvedCube = solver.getSolvedCube(cube);
         long endTime = System.currentTimeMillis();
@@ -40,7 +36,6 @@ public class Main {
         graphData.setExecutionTime(endTime - startTime);
         System.out.println();
 
-        // Visualize cube
         menu.isVisualize(cube, solvedCube, graphData);
 
         menu.closeScanner();
